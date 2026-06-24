@@ -1,0 +1,19 @@
+1. recruitment -> user appies for joining ccs
+
+2. signup -> user gets email of acceptance and he signs up
+(email + password) - login -> user can now login with his account
+
+- twoFactorAuth ->
+- server creates cookie
+- send the cookie + newItem
+
+3. dashboard -> create, read and update
+- remove the upload photo button, certificates, card, scan qr
+
+4. onLoad, check if cookie is available:
+    - send req -> /me with (authToken)->auto
+    - it will extract the _id and send back the item
+    - hide join CCS button
+    - hide sign in button
+    - show profile icon
+    
