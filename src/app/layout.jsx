@@ -1,7 +1,6 @@
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { Navbar } from "@/components/shared/Navbar";
-import { Footer } from "@/components/shared/Footer";
+import { ConditionalShell } from "@/components/ConditionalShell";
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -51,11 +50,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Providers>
-          <div className="flex min-h-dvh flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <ConditionalShell>{children}</ConditionalShell>
         </Providers>
       </body>
     </html>
