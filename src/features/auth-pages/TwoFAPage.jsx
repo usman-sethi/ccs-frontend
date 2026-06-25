@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { AuthButton } from "@/components/auth/FormField";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const OTP_LENGTH = 6;
 const RESEND_SECS = 60;
@@ -22,9 +23,9 @@ function OtpCell({ value, active, hasError }) {
         active
           ? "border-primary bg-primary/5 shadow-[0_0_0_3px] shadow-primary/20"
           : value
-          ? "border-border bg-card"
-          : "border-border bg-card text-muted-foreground",
-        hasError && "border-destructive bg-destructive/5 animate-shake"
+            ? "border-border bg-card"
+            : "border-border bg-card text-muted-foreground",
+        hasError && "border-destructive bg-destructive/5 animate-shake",
       )}
     >
       {value && (
@@ -44,15 +45,21 @@ function OtpCell({ value, active, hasError }) {
 }
 
 export default function TwoFAPage() {
-  const router      = useRouter();
-  const searchParams = useSearchParams();
-  const email       = searchParams.get("email") || "your email";
+  const { twoFactorAuth, setUser } = useAuth();
+
+  const router = useRouter();
+  const [email, setEmail] = useState("you email");
 
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(""));
   const [activeIdx, setActiveIdx] = useState(0);
   const [busy, setBusy] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [resendSecs, setResendSecs] = useState(RESEND_SECS);
+
+  useEffect(() => {
+    const email = JSON.parse(sessionStorage.getItem("email")) || "your email";
+    setEmail(email);
+  }, []);
 
   const inputsRef = useRef([]);
 
@@ -84,9 +91,15 @@ export default function TwoFAPage() {
         setDigits(next);
         focusCell(idx - 1);
       }
-    } else if (e.key === "ArrowLeft")  { e.preventDefault(); focusCell(idx - 1); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); focusCell(idx + 1); }
-      else if (e.key === "Enter")      { handleVerify(); }
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      focusCell(idx - 1);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      focusCell(idx + 1);
+    } else if (e.key === "Enter") {
+      handleVerify();
+    }
   };
 
   const handleInput = (e, idx) => {
@@ -101,7 +114,10 @@ export default function TwoFAPage() {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, OTP_LENGTH);
     if (!pasted) return;
     const next = Array(OTP_LENGTH).fill("");
     for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
@@ -116,10 +132,14 @@ export default function TwoFAPage() {
       toast.error("Enter all 6 digits");
       return;
     }
+
     setBusy(true);
     try {
       /* TODO: call your Express backend /api/auth/verify-2fa */
-      await new Promise((r) => setTimeout(r, 900)); // stub
+      const data = await twoFactorAuth(email, code);
+      setUser(data.user);
+      sessionStorage.removeItem("email");
+      localStorage.setItem("loggedIn", JSON.stringify(true));
       toast.success("Verified! Welcome back.");
       router.push("/dashboard");
     } catch (e) {
@@ -147,18 +167,18 @@ export default function TwoFAPage() {
       </div>
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">Two-factor authentication</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Two-factor authentication
+        </h1>
         <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
           We sent a 6-digit code to{" "}
-          <span className="font-medium text-foreground">{email}</span>. Enter it below.
+          <span className="font-medium text-foreground">{email}</span>. Enter it
+          below.
         </p>
       </div>
 
       {/* OTP cells */}
-      <div
-        className="flex justify-between gap-2"
-        onPaste={handlePaste}
-      >
+      <div className="flex justify-between gap-2" onPaste={handlePaste}>
         {digits.map((d, i) => (
           <div key={i} className="flex-1">
             <input
@@ -208,7 +228,11 @@ export default function TwoFAPage() {
           loading={busy}
           onClick={handleVerify}
           type="button"
-          className={cn(filled === OTP_LENGTH && !busy && "ring-2 ring-primary/20 ring-offset-2")}
+          className={cn(
+            filled === OTP_LENGTH &&
+              !busy &&
+              "ring-2 ring-primary/20 ring-offset-2",
+          )}
         >
           Verify code
         </AuthButton>

@@ -7,9 +7,7 @@
  */
 
 const API_BASE =
-  typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001")
-    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001");
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -38,7 +36,7 @@ async function request(path, options = {}) {
  * Expected response: { id, email, displayName, avatarUrl, isAdmin, token }
  */
 export async function signIn({ email, password }) {
-  return request("/api/auth/signin", {
+  return request("/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
@@ -49,19 +47,27 @@ export async function signIn({ email, password }) {
  * Expected body: { email, password, displayName }
  * Expected response: { message } (email verification required before login)
  */
-export async function signUp({ email, password, displayName }) {
-  return request("/api/auth/signup", {
+export async function signUp({ email, password }) {
+  return request("/auth/signup", {
     method: "POST",
-    body: JSON.stringify({ email, password, displayName }),
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+// 2fa
+export async function twoFactorAuth({ email, otp }) {
+  return request("/auth/2fa", {
+    method: "POST",
+    body: JSON.stringify({ email, otp }),
   });
 }
 
 /**
- * POST /api/auth/signout
+ * POST /api/auth/logout
  */
 export async function signOut() {
-  return request("/api/auth/signout", { method: "POST" }).catch(() => {
-    /* silent — local state is cleared regardless */
+  return request("/auth/logout", { method: "POST" }).catch((err) => {
+    console.log(err.message)
   });
 }
 
@@ -70,7 +76,7 @@ export async function signOut() {
  * Expected body: { email }
  */
 export async function forgotPassword(email) {
-  return request("/api/auth/forgot-password", {
+  return request("/auth/forgot-password", {
     method: "POST",
     body: JSON.stringify({ email }),
   });
@@ -81,7 +87,7 @@ export async function forgotPassword(email) {
  * Expected body: { password, token }
  */
 export async function resetPassword({ password, token }) {
-  return request("/api/auth/reset-password", {
+  return request("/auth/reset-password", {
     method: "POST",
     body: JSON.stringify({ password, token }),
   });
@@ -90,11 +96,11 @@ export async function resetPassword({ password, token }) {
 /* -------- Profile -------- */
 
 /**
- * GET /api/profile
+ * GET /users/profile
  * Expected response: { id, email, displayName, avatarUrl, department, year, bio, linkedin, github, isAdmin }
  */
 export async function getProfile() {
-  return request("/api/profile");
+  return request("/users/me");
 }
 
 /**
@@ -102,7 +108,7 @@ export async function getProfile() {
  * Expected body: { displayName, department, year, bio, linkedin, github }
  */
 export async function updateProfile(data) {
-  return request("/api/profile", {
+  return request(`/users/${data.id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
@@ -115,7 +121,7 @@ export async function updateProfile(data) {
  * Expected body: { name, email, subject, message }
  */
 export async function submitContact(data) {
-  return request("/api/contact", {
+  return request("/contacts", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -128,7 +134,7 @@ export async function submitContact(data) {
  * Expected body: { fullName, email, phone, department, semester, club, motivation }
  */
 export async function submitRecruitment(data) {
-  return request("/api/recruitment", {
+  return request("/recruitments", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -183,7 +189,7 @@ export async function updateContactMessage(id, data) {
  * Expected response: Array<{ id, fullName, email, department, year, clubInterest, motivation, status, createdAt }>
  */
 export async function getRecruitmentApplications() {
-  return request("/api/admin/recruitment");
+  return request("/recruitments");
 }
 
 /**
@@ -191,7 +197,7 @@ export async function getRecruitmentApplications() {
  * Expected body: { status: "new" | "reviewing" | "accepted" | "rejected" }
  */
 export async function updateRecruitmentApplication(id, data) {
-  return request(`/api/admin/recruitment/${id}`, {
+  return request(`/recruitments/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });

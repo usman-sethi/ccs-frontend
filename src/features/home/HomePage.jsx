@@ -5,10 +5,17 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/shared/SectionHeader";
+import { useAuth } from "@/context/AuthContext";
 import {
-  ClubCard, EventCard, LeaderCard, ProjectCard, GalleryTile,
+  ClubCard,
+  EventCard,
+  LeaderCard,
+  ProjectCard,
+  GalleryTile,
 } from "@/components/shared/cards";
 import { useSiteContent } from "@/context/SiteContentContext";
+import Image from "next/image";
+import HERO_IMG from "@/public/hero-bg-img.webp";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -20,26 +27,43 @@ const fadeUp = {
 };
 
 export default function HomePage() {
+  const { isLoggedInRef, isAdmin, isDeveloper, isRecruited, isKnown } = useAuth();
+
   const { content } = useSiteContent();
   const {
-    clubs: CLUBS, events: EVENTS, leaders: LEADERS,
-    projects: PROJECTS, stats: STATS, gallery: GALLERY,
-    achievements: ACHIEVEMENTS, hero,
+    clubs: CLUBS,
+    events: EVENTS,
+    leaders: LEADERS,
+    projects: PROJECTS,
+    stats: STATS,
+    gallery: GALLERY,
+    achievements: ACHIEVEMENTS,
+    hero,
   } = content;
+
+  if (isDeveloper || isAdmin) {
+    hero.ctaPrimary.label = "Admin Panel";
+    hero.ctaPrimary.to = "/admin";
+  } else if (isLoggedInRef.current) {
+    hero.ctaPrimary.label = "Explore Leadership";
+    hero.ctaPrimary.to = "/leadership";
+  }
 
   return (
     <>
       {/* ──────────── HERO ──────────── */}
       <section className="relative isolate overflow-hidden min-h-[86vh] flex flex-col justify-center">
-
         {/* Background image */}
         {hero.bgImage && (
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-            <img
-              src={hero.bgImage}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10"
+          >
+            <Image
+              priority={true}
+              src={HERO_IMG}
+              className="w-full h-full object-cover"
               alt=""
-              className="size-full object-cover"
-              style={{ opacity: 0.85 }}
             />
           </div>
         )}
@@ -50,7 +74,7 @@ export default function HomePage() {
           className="pointer-events-none absolute inset-0 -z-10"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.50) 45%, rgba(0,0,0,0.30) 75%, rgba(0,0,0,0.55) 100%)",
+              "linear-gradient(to top, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.50) 45%, rgba(0,0,0,0.30) 75%, rgba(0,0,0,0.55) 100%)",
           }}
         />
 
@@ -64,7 +88,7 @@ export default function HomePage() {
           }}
         />
 
-        <div className="container-page py-20 md:py-28 lg:py-32">
+        <div className="container-page mt-40 py-20 md:py-28 lg:py-32">
           <motion.div
             initial="hidden"
             animate="show"
@@ -72,15 +96,19 @@ export default function HomePage() {
             className="mx-auto max-w-3xl text-center"
           >
             {/* Badge */}
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/85 backdrop-blur-sm">
-              <Sparkles className="size-3.5 text-primary" style={{ color: "var(--color-primary)" }} />
+            {/* <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/85 backdrop-blur-sm">
+              <Sparkles
+                className="size-3.5 text-primary"
+                style={{ color: "var(--color-primary)" }}
+              />
               {hero.badge}
-            </span>
+            </span> */}
 
             {/* Heading — always white on the dark-overlay image */}
             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
               {hero.title}{" "}
-              <span style={{ color: "var(--color-primary)" }}>{hero.accent}</span>.
+              {/* <span style={{ color: "var(--color-primary)" }}> */}
+              <span className="text-green-500">{hero.accent}</span>.
             </h1>
 
             <p className="mx-auto mt-5 max-w-xl text-base text-white/70 md:text-lg leading-relaxed">
@@ -109,7 +137,7 @@ export default function HomePage() {
           </motion.div>
 
           {/* Stats bar */}
-          <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-4 backdrop-blur-sm">
+          {/* <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-4 backdrop-blur-sm">
             {STATS.map((s) => (
               <div key={s.label} className="bg-black/30 px-6 py-6 text-center">
                 <p className="text-2xl font-semibold tracking-tight text-white md:text-3xl">
@@ -120,7 +148,7 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -129,11 +157,13 @@ export default function HomePage() {
         <div className="flex items-end justify-between gap-6">
           <SectionHeader
             eyebrow="Clubs & teams"
-            title="Six communities, one society"
-            description="Each club is a focused learning community with weekly sessions, projects, and competitions."
+            title="Ten communities, one society"
+            description="Our clubs are designed to foster curiosity, develop foundational knowledge, and prepare members for exciting opportunities in the future."
           />
           <Button asChild variant="ghost" className="hidden md:inline-flex">
-            <Link href="/clubs">All clubs <ArrowRight className="ml-1 size-4" /></Link>
+            <Link href="/clubs">
+              All clubs <ArrowRight className="ml-1 size-4" />
+            </Link>
           </Button>
         </div>
         <motion.div
@@ -143,11 +173,14 @@ export default function HomePage() {
           variants={{ show: { transition: { staggerChildren: 0.05 } } }}
           className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {CLUBS.map((c, i) => (
-            <motion.div key={c.slug} variants={fadeUp} custom={i}>
-              <ClubCard club={c} />
-            </motion.div>
-          ))}
+          {CLUBS.map((c, i) => {
+            if (i >= 6) return;
+            return (
+              <motion.div key={c.slug} variants={fadeUp} custom={i}>
+                <ClubCard club={c} />
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
 
@@ -161,13 +194,17 @@ export default function HomePage() {
               description="Hackathons, workshops, and talks open to all CCS members."
             />
             <Button asChild variant="ghost" className="hidden md:inline-flex">
-              <Link href="/events">All events <ArrowRight className="ml-1 size-4" /></Link>
+              <Link href="/events">
+                All events <ArrowRight className="ml-1 size-4" />
+              </Link>
             </Button>
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {EVENTS.filter((e) => e.status !== "past").slice(0, 3).map((e) => (
-              <EventCard key={e.id} event={e} />
-            ))}
+            {EVENTS.filter((e) => e.status !== "past")
+              .slice(0, 3)
+              .map((e) => (
+                <EventCard key={e.id} event={e} />
+              ))}
           </div>
         </div>
       </section>
@@ -194,7 +231,7 @@ export default function HomePage() {
       </section>
 
       {/* ──────────── PROJECTS ──────────── */}
-      <section className="border-t border-border bg-surface">
+      {/* <section className="border-t border-border bg-surface">
         <div className="container-page py-20 md:py-24">
           <SectionHeader
             eyebrow="Built by members"
@@ -207,10 +244,10 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ──────────── ACHIEVEMENTS + GALLERY ──────────── */}
-      <section className="container-page grid gap-12 py-20 md:py-24 lg:grid-cols-2">
+      {/* <section className="container-page grid gap-12 py-20 md:py-24 lg:grid-cols-2">
         <div>
           <SectionHeader
             eyebrow="Achievements"
@@ -219,13 +256,18 @@ export default function HomePage() {
           />
           <ul className="mt-8 space-y-4">
             {ACHIEVEMENTS.slice(0, 4).map((a, i) => (
-              <li key={i} className="flex gap-4 rounded-lg border border-border bg-card p-4">
+              <li
+                key={i}
+                className="flex gap-4 rounded-lg border border-border bg-card p-4"
+              >
                 <span className="shrink-0 rounded-md bg-subtle px-2 py-1 text-xs font-semibold text-foreground">
                   {a.year}
                 </span>
                 <div className="min-w-0">
                   <p className="text-sm font-medium">{a.title}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{a.detail}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {a.detail}
+                  </p>
                 </div>
               </li>
             ))}
@@ -243,27 +285,30 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ──────────── CTA ──────────── */}
-      <section className="container-page pb-20 md:pb-28">
-        <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/8 via-card to-card p-10 text-center md:p-14">
-          <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Ready to build with us?
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground md:text-base">
-            Recruitment is open to all computing students. Pick a club, show up, and start shipping.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/recruitment">Apply now</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/contact">Talk to us</Link>
-            </Button>
+      {!isKnown && (
+        <section className="container-page pb-20 md:pb-28">
+          <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/8 via-card to-card p-10 text-center md:p-14">
+            <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
+              Ready to build with us?
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground md:text-base">
+              Recruitment is open to all computing students. Pick a club, show
+              up, and start shipping.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+              <Button asChild size="lg">
+                <Link href="/recruitment">Apply now</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/contact">Talk to us</Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }

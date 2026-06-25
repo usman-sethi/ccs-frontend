@@ -1,16 +1,30 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import * as api from "@/lib/api";
 
 const AuthContext = createContext({
   user: null,
+  setUser: () => {},
   loading: true,
+  isLoggedInRef: null,
+  isRecruited: false,
   isAdmin: false,
+  isDeveloper: false,
+  isKnown: false,
   signIn: async () => {},
   signUp: async () => {},
+  twoFactorAuth: async () => {},
   signOut: async () => {},
   forgotPassword: async () => {},
+  getProfile: async () => {},
   updateProfile: async () => {},
 });
 
@@ -19,6 +33,19 @@ const AUTH_STORAGE_KEY = "ccs-auth-user";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRecruited, setIsRecruited] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isDeveloper, setIsDeveloper] = useState(false);
+  const isLoggedInRef = useRef(null);
+
+  const isKnown =
+    isAdmin || isDeveloper || isLoggedInRef.current || isRecruited;
+
+  useEffect(() => {
+    if (!user || !isLoggedInRef.current) return;
+    setIsAdmin(user.role === "admin");
+    setIsDeveloper(user.role === "developer");
+  }, [user, isLoggedInRef.current]);
 
   useEffect(() => {
     // Restore session from localStorage on mount
@@ -35,20 +62,23 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signIn = useCallback(async (email, password) => {
-    const data = await api.signIn({ email, password });
-    setUser(data);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
-    return data;
+    return await api.signIn({ email, password });
   }, []);
 
-  const signUp = useCallback(async (email, password, displayName) => {
-    return api.signUp({ email, password, displayName });
+  const signUp = useCallback(async (email, password) => {
+    return api.signUp({ email, password });
+    // No auto-login — email verification required
+  }, []);
+
+  const twoFactorAuth = useCallback(async (email, otp) => {
+    return api.twoFactorAuth({ email, otp });
     // No auto-login — email verification required
   }, []);
 
   const signOut = useCallback(async () => {
     await api.signOut();
     setUser(null);
+    localStorage.removeItem("loggedIn");
     localStorage.removeItem(AUTH_STORAGE_KEY);
   }, []);
 
@@ -56,25 +86,49 @@ export function AuthProvider({ children }) {
     return api.forgotPassword(email);
   }, []);
 
+  const getProfile = useCallback(async () => {
+    const me = await api.getProfile();
+    if (me.success) {
+      setUser(me.data);
+      localStorage.setItem("loggedIn", JSON.stringify(true));
+    } else {
+      localStorage.setItem("loggedIn", JSON.stringify(false));
+    }
+  }, []);
+
+  useEffect(() => {
+    isLoggedInRef.current =
+      JSON.parse(localStorage.getItem("loggedIn")) || false;
+    setIsRecruited(JSON.parse(localStorage.getItem("isRecruited")) || false);
+  }, [user, isLoggedInRef.current]);
+
+  useEffect(() => {
+    if (user) return;
+    if (!isLoggedInRef.current) return;
+
+    getProfile();
+  }, [user, isLoggedInRef.current, getProfile]);
+
   const updateProfile = useCallback(async (data) => {
     const updated = await api.updateProfile(data);
-    setUser((prev) => {
-      if (!prev) return prev;
-      const next = { ...prev, ...updated };
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
     return updated;
-  }, []);
+  });
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        setUser,
+        isLoggedInRef,
+        isRecruited,
         loading,
-        isAdmin: user?.isAdmin ?? false,
+        isKnown,
+        isAdmin,
+        isDeveloper,
+        isRecruited,
         signIn,
         signUp,
+        twoFactorAuth,
         signOut,
         forgotPassword,
         updateProfile,

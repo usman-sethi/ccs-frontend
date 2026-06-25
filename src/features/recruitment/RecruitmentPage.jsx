@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -44,6 +44,12 @@ export default function RecruitmentPage() {
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  // if recruited
+  useEffect(() => {
+    const isRecruited = JSON.parse(localStorage.getItem("isRecruited"));
+    if (isRecruited) setDone(true);
+  }, []);
+
   const form = useForm({
     resolver: zodResolver(Schema),
     defaultValues: {
@@ -58,9 +64,12 @@ export default function RecruitmentPage() {
   });
 
   const onSubmit = async (values) => {
+    values.clubIntrested = values.club;
+    delete values.club;
     setBusy(true);
     try {
       await submitRecruitment(values);
+      localStorage.setItem("isRecruited", JSON.stringify(true));
       setDone(true);
     } catch (e) {
       toast.error("Submission failed", { description: e.message });
@@ -74,10 +83,12 @@ export default function RecruitmentPage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="max-w-md text-center">
           <CheckCircle2 className="mx-auto size-12 text-primary" />
-          <h2 className="mt-4 text-2xl font-semibold tracking-tight">Application received!</h2>
+          <h2 className="mt-4 text-2xl font-semibold tracking-tight">
+            Application received!
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Thanks for applying to CCS. We&apos;ll review your application and reach out within a
-            week.
+            Thanks for applying to CCS. We&apos;ll review your application and
+            reach out within 24 hours.
           </p>
         </div>
       </div>
@@ -108,7 +119,10 @@ export default function RecruitmentPage() {
                   "Leadership opportunities",
                   "A community that builds together",
                 ].map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <li
+                    key={b}
+                    className="flex items-start gap-2 text-sm text-muted-foreground"
+                  >
                     <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
                     {b}
                   </li>
@@ -123,7 +137,10 @@ export default function RecruitmentPage() {
                 {CLUBS.map((c) => {
                   const Icon = c.icon;
                   return (
-                    <div key={c.slug} className="flex items-center gap-3 text-sm">
+                    <div
+                      key={c.slug}
+                      className="flex items-center gap-3 text-sm"
+                    >
                       <Icon className="size-4 shrink-0 text-muted-foreground" />
                       <span>{c.name}</span>
                     </div>
@@ -140,56 +157,88 @@ export default function RecruitmentPage() {
             className="rounded-xl border border-border bg-card p-6 md:p-8"
           >
             <div className="grid gap-5 md:grid-cols-2">
-              <Field label="Full name" error={form.formState.errors.fullName?.message}>
-                <Input placeholder="Muhammad Usman" {...form.register("fullName")} />
+              <Field
+                label="Full name"
+                error={form.formState.errors.fullName?.message}
+              >
+                <Input placeholder="Full Name" {...form.register("fullName")} />
               </Field>
               <Field label="Email" error={form.formState.errors.email?.message}>
-                <Input type="email" placeholder="you@university.edu" {...form.register("email")} />
+                <Input
+                  type="email"
+                  placeholder="you@university.edu"
+                  {...form.register("email")}
+                />
               </Field>
               <Field label="Phone" error={form.formState.errors.phone?.message}>
-                <Input type="tel" placeholder="+92 300 0000000" {...form.register("phone")} />
+                <Input
+                  type="tel"
+                  placeholder="+92 300 0000000"
+                  {...form.register("phone")}
+                />
               </Field>
-              <Field label="Department" error={form.formState.errors.department?.message}>
+              <Field
+                label="Department"
+                error={form.formState.errors.department?.message}
+              >
                 <Select
                   value={form.watch("department")}
-                  onValueChange={(v) => form.setValue("department", v, { shouldValidate: true })}
+                  onValueChange={(v) =>
+                    form.setValue("department", v, { shouldValidate: true })
+                  }
                 >
                   <SelectTrigger aria-label="Select department">
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
                     {DEPARTMENTS.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                      <SelectItem key={d} value={d}>
+                        {d}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Semester" error={form.formState.errors.semester?.message}>
+              <Field
+                label="Semester"
+                error={form.formState.errors.semester?.message}
+              >
                 <Select
                   value={form.watch("semester")}
-                  onValueChange={(v) => form.setValue("semester", v, { shouldValidate: true })}
+                  onValueChange={(v) =>
+                    form.setValue("semester", v, { shouldValidate: true })
+                  }
                 >
                   <SelectTrigger aria-label="Select semester">
                     <SelectValue placeholder="Select semester" />
                   </SelectTrigger>
                   <SelectContent>
                     {SEMESTERS.map((s) => (
-                      <SelectItem key={s} value={s}>{s} semester</SelectItem>
+                      <SelectItem key={s} value={s}>
+                        {s} semester
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Club interest" error={form.formState.errors.club?.message}>
+              <Field
+                label="Club interest"
+                error={form.formState.errors.club?.message}
+              >
                 <Select
                   value={form.watch("club")}
-                  onValueChange={(v) => form.setValue("club", v, { shouldValidate: true })}
+                  onValueChange={(v) =>
+                    form.setValue("club", v, { shouldValidate: true })
+                  }
                 >
                   <SelectTrigger aria-label="Select club">
                     <SelectValue placeholder="Select club" />
                   </SelectTrigger>
                   <SelectContent>
                     {CLUBS.map((c) => (
-                      <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>
+                      <SelectItem key={c.slug} value={c.slug}>
+                        {c.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

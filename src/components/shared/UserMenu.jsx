@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, LayoutDashboard, Shield, User as UserIcon } from "lucide-react";
+import {
+  LogOut,
+  LayoutDashboard,
+  Shield,
+  User as UserIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -16,15 +21,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 
 export function UserMenu() {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, loading, signOut, isKnown } = useAuth();
   const router = useRouter();
 
   if (loading) return <div className="size-9" aria-hidden />;
 
-  if (!user) {
+  if (!user && isKnown) {
     return (
       <Link
-        href="/auth"
+        href="/login"
         className="rounded-md px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
       >
         Sign in
@@ -32,14 +37,16 @@ export function UserMenu() {
     );
   }
 
+  if (!user) return;
+
   const initials =
-    (user.displayName || "")
+    (user?.fullName || "")
       .split(" ")
       .map((s) => s[0])
       .slice(0, 2)
       .join("")
       .toUpperCase() ||
-    user.email?.[0]?.toUpperCase() ||
+    user?.email?.[0]?.toUpperCase() ||
     "U";
 
   const handleSignOut = async () => {
@@ -60,7 +67,7 @@ export function UserMenu() {
           aria-label="Account menu"
         >
           <Avatar className="size-8">
-            <AvatarImage src={user.avatarUrl} alt="" />
+            <AvatarImage src={user?.avatarUrl} alt="" />
             <AvatarFallback className="bg-white/20 text-xs font-semibold text-white">
               {initials}
             </AvatarFallback>
@@ -70,7 +77,7 @@ export function UserMenu() {
 
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="truncate text-xs font-normal text-muted-foreground">
-          {user.email}
+          {user?.email}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
@@ -91,7 +98,10 @@ export function UserMenu() {
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="cursor-pointer text-destructive focus:text-destructive"
+        >
           <LogOut className="mr-2 size-4" /> Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>

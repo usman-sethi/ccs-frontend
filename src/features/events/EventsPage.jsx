@@ -38,7 +38,7 @@ export default function EventsPage() {
       <PageHeader
         eyebrow="Events"
         title="What's happening at CCS."
-        description="Workshops, talks, hackathons and competitions — open to all members."
+        description="Bootcamps, talks, hackathons and competitions open to all members."
       />
       <section className="container-page py-12 md:py-16">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

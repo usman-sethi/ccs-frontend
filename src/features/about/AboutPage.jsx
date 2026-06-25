@@ -13,7 +13,7 @@ export default function AboutPage() {
       <PageHeader
         eyebrow="About"
         title="Built by students, for students."
-        description="CCS is the umbrella society for every computing discipline on campus — uniting six clubs and teams into one collaborative community."
+        description="CCS is the umbrella society for every computing discipline on campus uniting ten clubs and teams into one collaborative community."
       />
 
       <section className="container-page grid gap-6 py-16 md:grid-cols-2 lg:grid-cols-3">
@@ -26,12 +26,12 @@ export default function AboutPage() {
           {
             icon: Eye,
             title: "Vision",
-            body: "A campus where computing students lead by shipping — from research to products to community impact.",
+            body: "A campus where computing students lead by shipping from research to products to community impact.",
           },
           {
             icon: ListChecks,
             title: "Objectives",
-            body: "Run workshops, host competitions, support open-source projects, and connect students with the wider tech industry.",
+            body: "Run bootcamps, host competitions, support opensource projects, and connect students with the wider tech industry.",
           },
         ].map((c) => (
           <div key={c.title} className="rounded-xl border border-border bg-card p-6">
@@ -45,7 +45,7 @@ export default function AboutPage() {
       </section>
 
       {/* History */}
-      <section className="border-t border-border bg-surface">
+      {/* <section className="border-t border-border bg-surface">
         <div className="container-page grid gap-10 py-16 md:grid-cols-[1fr_2fr]">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">History</p>
@@ -74,7 +74,7 @@ export default function AboutPage() {
             ))}
           </ol>
         </div>
-      </section>
+      </section> */}
 
       {/* Structure */}
       <section className="container-page py-20">
@@ -95,7 +95,7 @@ export default function AboutPage() {
               Executive Council
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-              {LEADERS.slice(0, 4).map((l) => (
+              {LEADERS.slice(0, 8).map((l) => (
                 <div key={l.name} className="rounded-lg bg-subtle px-3 py-2">
                   <p className="text-sm font-medium">{l.name}</p>
                   <p className="text-xs text-muted-foreground">{l.position}</p>
@@ -118,7 +118,7 @@ export default function AboutPage() {
                   <p className="text-sm font-semibold">{c.name}</p>
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  {c.members} members · Led by {c.leads.join(", ")}
+                  {c.members} members · Led by {c.leads?.join(", ")}
                 </p>
               </div>
             ))}

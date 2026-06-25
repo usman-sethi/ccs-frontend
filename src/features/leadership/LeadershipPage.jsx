@@ -38,7 +38,7 @@ export default function LeadershipPage() {
       <PageHeader
         eyebrow="Leadership"
         title="The people running CCS."
-        description="A student-led executive team that keeps every club moving forward."
+        description="A student led executive team that keeps every club moving forward."
       />
       <section className="container-page py-12 md:py-16">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -20,7 +20,8 @@ const SiteContentContext = createContext(null);
 function safeRead() {
   if (typeof window === "undefined") return DEFAULT_SITE_CONTENT;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    // const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = null
     if (!raw) return DEFAULT_SITE_CONTENT;
     const parsed = JSON.parse(raw);
     if (typeof parsed !== "object" || !parsed) return DEFAULT_SITE_CONTENT;

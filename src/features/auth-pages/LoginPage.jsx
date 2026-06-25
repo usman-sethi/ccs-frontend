@@ -36,8 +36,12 @@ export default function LoginPage() {
     setBusy(true);
     try {
       await signIn(values.email, values.password);
-      toast.success("Welcome back!");
-      router.push("/dashboard");
+      sessionStorage.setItem("email", JSON.stringify(values.email))
+       toast.success("Login successful!", {
+        description:
+          "Check your email to verify your account and let's get started!",
+      });
+      router.push("/2fa");
     } catch (e) {
       toast.error("Sign in failed", { description: e.message });
     } finally {
@@ -54,9 +58,6 @@ export default function LoginPage() {
         title="Welcome back"
         subtitle="Sign in to your CCS member account."
       />
-
-      <GoogleButton label="Continue with Google" onClick={handleGoogle} />
-      <OrDivider />
 
       <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
         <FormField
@@ -88,12 +89,12 @@ export default function LoginPage() {
 
         <div className="flex items-center justify-between pt-0.5">
           <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground select-none">
-            <input
+            {/* <input
               type="checkbox"
               className="size-3.5 rounded accent-primary"
               {...form.register("rememberMe")}
-            />
-            Remember me
+            /> */}
+            {/* Remember me */}
           </label>
           <Link
             href="/forgot-password"

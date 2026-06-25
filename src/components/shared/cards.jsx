@@ -8,15 +8,16 @@ import { cn } from "@/lib/utils";
 export function ClubCard({ club }) {
   const Icon = club.icon;
   return (
-    <Link
-      href={`/clubs/${club.slug}`}
+    <div
+    // <Link
+      // href={`/clubs/${club.slug}`}
       className="group relative flex flex-col rounded-xl border border-border bg-card p-6 transition-all duration-200 hover:border-foreground/15 hover:shadow-[var(--shadow-elevated)]"
     >
       <div className="flex items-start justify-between">
         <span className="flex size-10 items-center justify-center rounded-lg bg-subtle text-foreground">
           <Icon className="size-5" />
         </span>
-        <ArrowUpRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+        {/* <ArrowUpRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" /> */}
       </div>
       <h3 className="mt-5 text-base font-semibold tracking-tight">{club.name}</h3>
       <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{club.short}</p>
@@ -26,7 +27,8 @@ export function ClubCard({ club }) {
           {club.members} members
         </span>
       </div>
-    </Link>
+      {/* </Link> */}
+      </div>
   );
 }
 
@@ -44,7 +46,7 @@ export function LeaderCard({ leader }) {
           <p className="truncate text-sm font-semibold">{leader.name}</p>
           <p className="text-xs text-muted-foreground">{leader.position}</p>
         </div>
-        <a
+        {/* <a
           href={leader.linkedin}
           target="_blank"
           rel="noreferrer noopener"
@@ -52,11 +54,11 @@ export function LeaderCard({ leader }) {
           className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <Linkedin className="size-4" />
-        </a>
+        </a> */}
       </div>
-      <p className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
+      {/* <p className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
         {leader.department}
-      </p>
+      </p> */}
     </div>
   );
 }

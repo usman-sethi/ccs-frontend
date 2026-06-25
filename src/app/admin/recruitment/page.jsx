@@ -31,8 +31,8 @@ export default function AdminRecruitmentPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getRecruitmentApplications();
-      setApps(data);
+      const res = await getRecruitmentApplications();
+      setApps(res.data);
       setUsingDemo(false);
     } catch {
       setApps(DEMO_RECRUITMENT_APPS);
@@ -46,13 +46,13 @@ export default function AdminRecruitmentPage() {
 
   const updateStatus = async (id, status) => {
     if (usingDemo) {
-      setApps((prev) => prev.map((a) => a.id === id ? { ...a, status } : a));
+      setApps((prev) => prev.map((a) => a._id === id ? { ...a, status } : a));
       toast.success("Status updated (demo mode).");
       return;
     }
     try {
       await updateRecruitmentApplication(id, { status });
-      setApps((prev) => prev.map((a) => a.id === id ? { ...a, status } : a));
+      setApps((prev) => prev.map((a) => a._id === id ? { ...a, status } : a));
       toast.success("Status updated.");
     } catch (e) {
       toast.error("Failed to update status", { description: e.message });
@@ -122,12 +122,12 @@ export default function AdminRecruitmentPage() {
           {filtered.map((a) => {
             const meta = STATUS_META[a.status] ?? STATUS_META.new;
             return (
-              <div key={a.id}
+              <div key={a._id}
                 className={cn("overflow-hidden rounded-xl border bg-card",
                   a.status === "new" ? "border-primary/40" : "border-border")}>
                 <button type="button"
                   className="flex w-full items-start gap-4 px-5 py-4 text-left hover:bg-accent/30"
-                  onClick={() => setExpanded((p) => p === a.id ? null : a.id)}>
+                  onClick={() => setExpanded((p) => p === a._id ? null : a._id)}>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-semibold">{a.fullName}</p>
@@ -144,13 +144,13 @@ export default function AdminRecruitmentPage() {
                     <span className="text-xs text-muted-foreground">
                       {a.createdAt ? new Date(a.createdAt).toLocaleDateString() : ""}
                     </span>
-                    {expanded === a.id
+                    {expanded === a._id
                       ? <ChevronUp className="size-4 text-muted-foreground" />
                       : <ChevronDown className="size-4 text-muted-foreground" />}
                   </div>
                 </button>
 
-                {expanded === a.id && (
+                {expanded === a._id && (
                   <div className="border-t border-border px-5 py-4 space-y-4">
                     {a.motivation && (
                       <div>
@@ -164,7 +164,7 @@ export default function AdminRecruitmentPage() {
                       </a>
                       <div className="ml-auto flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">Status:</span>
-                        <Select value={a.status} onValueChange={(v) => updateStatus(a.id, v)}>
+                        <Select value={a.status} onValueChange={(v) => updateStatus(a._id, v)}>
                           <SelectTrigger className="h-7 w-32 text-xs"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="new">New</SelectItem>
