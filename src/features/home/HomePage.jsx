@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/shared/SectionHeader";
+import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import {
   ClubCard,
@@ -16,6 +17,7 @@ import {
 import { useSiteContent } from "@/context/SiteContentContext";
 import Image from "next/image";
 import HERO_IMG from "@/public/hero-bg-img.webp";
+import { useEffect } from "react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 14 },
@@ -27,8 +29,7 @@ const fadeUp = {
 };
 
 export default function HomePage() {
-  const { isLoggedInRef, isAdmin, isDeveloper, isRecruited, isKnown } =
-    useAuth();
+  const { isLoggedInRef, isAdmin, isDeveloper, isKnown, user } = useAuth();
 
   const { content } = useSiteContent();
   const {
@@ -49,6 +50,20 @@ export default function HomePage() {
     hero.ctaPrimary.label = "Explore Leadership";
     hero.ctaPrimary.to = "/leadership";
   }
+
+  useEffect(() => {
+    if (!user) return; // Wait until the user is logged in
+
+    const STORAGE_KEY = "ccs:member-update-notice:v1";
+
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      toast.info(
+        "We're currently updating our member records. If you've recently joined CCS, please complete your profile to help us keep our records accurate.",
+      );
+
+      localStorage.setItem(STORAGE_KEY, "true");
+    }
+  }, [user]);
 
   return (
     <>

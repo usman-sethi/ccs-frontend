@@ -11,7 +11,7 @@ export function Providers({ children }) {
       <AuthProvider>
         <SiteContentProvider>
           {children}
-          <Toaster richColors position="top-right" />
+          <Toaster richColors />
         </SiteContentProvider>
       </AuthProvider>
     </ThemeProvider>

@@ -38,7 +38,6 @@ export async function middleware(req) {
   const isGuest = !payload;
   const isUser = payload?.role === "user";
   const isAdmin = payload?.role === "admin";
-  const isDeveloper = payload?.role === "developer"
 
   const isAuthPath = authPaths.includes(pathname);
   const isRestrictedPath = restrictedPaths.includes(pathname);
