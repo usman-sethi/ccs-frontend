@@ -49,7 +49,7 @@ export async function middleware(req) {
     pathname.startsWith("/admin/recruitment/");
 
   // Guest
-  if (isGuest && isAdminPath) {
+  if (isGuest && (isAdmin || isRestrictedPath)) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
@@ -63,7 +63,7 @@ export async function middleware(req) {
   // Admin
   if (isAdmin) {
     // Prevent visiting auth pages
-    if (isAuthPath) {
+    if (isAuthPath || isRestrictedPath) {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
