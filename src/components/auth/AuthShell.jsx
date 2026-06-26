@@ -5,8 +5,14 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BrandPanel } from "./BrandPanel";
 import { useSiteContent } from "@/context/SiteContentContext";
+import Image from "next/image";
+import CCS_LOGO from "@/public/ccs-logo.webp";
 
-export function AuthShell({ children, backHref = "/", backLabel = "Back to site" }) {
+export function AuthShell({
+  children,
+  backHref = "/",
+  backLabel = "Back to site",
+}) {
   const { content } = useSiteContent();
 
   return (
@@ -22,10 +28,12 @@ export function AuthShell({ children, backHref = "/", backLabel = "Back to site"
           style={{ background: "var(--nav-surface)" }}
         >
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-lg bg-white/15 text-[10px] font-bold text-white">
-              {content.society.name}
+            <span className="flex size-9 md:size-12 p-1 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold tracking-tight text-white">
+              <Image src={CCS_LOGO} alt="logo" />
             </span>
-            <span className="text-sm font-semibold text-white">{content.society.fullName}</span>
+            <span className="text-sm font-semibold text-white">
+              {content.society.fullName}
+            </span>
           </Link>
           <Link
             href={backHref}

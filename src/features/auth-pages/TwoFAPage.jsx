@@ -45,7 +45,7 @@ function OtpCell({ value, active, hasError }) {
 }
 
 export default function TwoFAPage() {
-  const { twoFactorAuth, setUser } = useAuth();
+  const { twoFactorAuth, setUser, resendOTP } = useAuth();
 
   const router = useRouter();
   const [email, setEmail] = useState("you email");
@@ -152,9 +152,15 @@ export default function TwoFAPage() {
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setResendSecs(RESEND_SECS);
-    toast.success("New code sent!");
+
+    try {
+      await resendOTP(email);
+      toast.success("New code sent!");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const filled = digits.filter(Boolean).length;

@@ -38,6 +38,7 @@ export async function middleware(req) {
   const isGuest = !payload;
   const isUser = payload?.role === "user";
   const isAdmin = payload?.role === "admin";
+  const isDeveloper = payload?.role === "developer"
 
   const isAuthPath = authPaths.includes(pathname);
   const isRestrictedPath = restrictedPaths.includes(pathname);
@@ -49,7 +50,7 @@ export async function middleware(req) {
     pathname.startsWith("/admin/recruitment/");
 
   // Guest
-  if (isGuest && (isAdmin || isRestrictedPath)) {
+  if (isGuest && (isAdminPath || isRestrictedPath)) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 

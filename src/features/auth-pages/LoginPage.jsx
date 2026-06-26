@@ -96,12 +96,12 @@ export default function LoginPage() {
             /> */}
             {/* Remember me */}
           </label>
-          <Link
+          {/* <Link
             href="/forgot-password"
             className="text-xs text-primary hover:underline"
           >
             Forgot password?
-          </Link>
+          </Link> */}
         </div>
 
         <AuthButton loading={busy} className="mt-2">

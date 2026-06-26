@@ -62,12 +62,19 @@ export async function twoFactorAuth({ email, otp }) {
   });
 }
 
+export const resendOTP = async (email) => {
+  return request("/auth/resend-otp", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+};
+
 /**
  * POST /api/auth/logout
  */
 export async function signOut() {
   return request("/auth/logout", { method: "POST" }).catch((err) => {
-    console.log(err.message)
+    console.log(err.message);
   });
 }
 

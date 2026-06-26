@@ -32,6 +32,11 @@ export function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // clear the ccs localstorage
+    setTimeout(() => {
+      localStorage.removeItem("ccs-site-content-v1");
+    }, 500);
+
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -64,10 +69,10 @@ export function Navbar() {
           className="flex items-center gap-2.5 shrink-0"
           aria-label={`${SOCIETY.fullName} home`}
         >
-          <span className="flex size-12 p-1 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold tracking-tight text-white">
-            <Image src={CCS_LOGO} width={74} height={74} alt="logo" />
+          <span className="flex size-9 md:size-12 p-1 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold tracking-tight text-white">
+            <Image src={CCS_LOGO} alt="logo" />
           </span>
-          <span className="hidden text-sm font-semibold tracking-tight text-white sm:inline">
+          <span className="text-sm font-semibold tracking-tight text-white inline">
             {SOCIETY.fullName}
           </span>
         </Link>

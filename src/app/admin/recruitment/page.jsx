@@ -31,9 +31,9 @@ import { cn } from "@/lib/utils";
 
 const STATUS_META = {
   new: { label: "New", variant: "default" },
-  reviewing: { label: "Reviewing", variant: "secondary" },
+  // reviewing: { label: "Reviewing", variant: "secondary" },
   accepted: { label: "Accepted", variant: "secondary" },
-  rejected: { label: "Rejected", variant: "outline" },
+  // rejected: { label: "Rejected", variant: "outline" },
 };
 
 export default function AdminRecruitmentPage() {
@@ -48,7 +48,7 @@ export default function AdminRecruitmentPage() {
     setLoading(true);
     try {
       const res = await getRecruitmentApplications();
-      setApps(res.data);
+      setApps(res.data.reverse());
       setUsingDemo(false);
     } catch {
       setApps(DEMO_RECRUITMENT_APPS);
@@ -248,9 +248,9 @@ export default function AdminRecruitmentPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="new">New</SelectItem>
-                            <SelectItem value="reviewing">Reviewing</SelectItem>
+                            {/* <SelectItem value="reviewing">Reviewing</SelectItem> */}
                             <SelectItem value="accepted">Accepted</SelectItem>
-                            <SelectItem value="rejected">Rejected</SelectItem>
+                            {/* <SelectItem value="rejected">Rejected</SelectItem> */}
                           </SelectContent>
                         </Select>
                       </div>

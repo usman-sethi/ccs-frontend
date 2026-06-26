@@ -23,6 +23,7 @@ const AuthContext = createContext({
   signIn: async () => {},
   signUp: async () => {},
   twoFactorAuth: async () => {},
+  resendOTP: async () => {},
   signOut: async () => {},
   forgotPassword: async () => {},
   getProfile: async () => {},
@@ -77,6 +78,10 @@ export function AuthProvider({ children }) {
   const twoFactorAuth = useCallback(async (email, otp) => {
     return api.twoFactorAuth({ email, otp });
     // No auto-login — email verification required
+  }, []);
+
+  const resendOTP = useCallback(async (email) => {
+    return api.resendOTP(email);
   }, []);
 
   const signOut = useCallback(async () => {
@@ -134,6 +139,7 @@ export function AuthProvider({ children }) {
         signIn,
         signUp,
         twoFactorAuth,
+        resendOTP,
         signOut,
         forgotPassword,
         updateProfile,

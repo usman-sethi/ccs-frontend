@@ -9,7 +9,7 @@ export const metadata = {
   icons: {
     icon: "/favicon.ico",
   },
-  title: { default: "CCS — Core Computing Society", template: "%s | CCS" },
+  title: { default: "Core Computing Society", template: "%s | CCS" },
   description:
     "Core Computing Society unites students in Software Engineering, AI, Cyber Security, Data Science, and beyond — building, learning, and leading together.",
   keywords: [
@@ -20,7 +20,7 @@ export const metadata = {
     "cyber security",
   ],
   openGraph: {
-    title: "CCS — Core Computing Society",
+    title: "Core Computing Society",
     description:
       "The home of computing students. Clubs, events, projects, and a real community.",
     type: "website",
@@ -28,7 +28,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CCS — Core Computing Society",
+    title: "Core Computing Society",
   },
 };
 
