@@ -3,47 +3,49 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Palette, Users, MessageSquare, ClipboardList,
-  LayoutDashboard, ChevronRight, BookOpen, CreditCard, QrCode, Wand2, Award,
+  Palette,
+  Users,
+  MessageSquare,
+  ClipboardList,
+  LayoutDashboard,
+  ChevronRight,
+  BookOpen,
+  CreditCard,
+  QrCode,
+  Wand2,
+  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
-// ── AUTH GUARD (commented out for testing) ──────────────────────────
-// To re-enable: uncomment, import useAuth, useRouter, useEffect
-// import { useEffect } from "react";
-// import { useRouter } from "next/navigation";
-// import { useAuth } from "@/context/AuthContext";
-// function useAdminGuard() {
-//   const { user, isAdmin, loading } = useAuth();
-//   const router = useRouter();
-//   useEffect(() => {
-//     if (!loading && (!user || !isAdmin)) router.replace(user ? "/dashboard" : "/auth");
-//   }, [user, isAdmin, loading, router]);
-//   return { authorized: !!user && isAdmin, loading };
-// }
-// ─────────────────────────────────────────────────────────────────────
-
-const NAV = [
-  { href: "/admin",             label: "Customize",   icon: Palette,       exact: true },
-  { href: "/admin/members",     label: "Members",     icon: Users                      },
-  { href: "/admin/contact",     label: "Contact",     icon: MessageSquare              },
-  { href: "/admin/recruitment", label: "Recruitment", icon: ClipboardList              },
-  { href: "/admin/pastpapers",  label: "Past Papers", icon: BookOpen                   },
-  { href: "/admin/cards",       label: "Cards",       icon: CreditCard                 },
-  { href: "/admin/attendance",   label: "Attendance",   icon: QrCode                     },
-  { href: "/admin/qr-designer",  label: "QR Designer",  icon: Wand2                      },
-  { href: "/admin/certificates", label: "Certificates", icon: Award                      },
+let NAV = [
+  { href: "/admin/recruitment", label: "Recruitment", icon: ClipboardList },
+  { href: "/admin", label: "Customize", icon: Palette, exact: true },
+  { href: "/admin/members", label: "Members", icon: Users },
+  { href: "/admin/contact", label: "Contact", icon: MessageSquare },
+  { href: "/admin/pastpapers", label: "Past Papers", icon: BookOpen },
+  { href: "/admin/cards", label: "Cards", icon: CreditCard },
+  { href: "/admin/attendance", label: "Attendance", icon: QrCode },
+  { href: "/admin/qr-designer", label: "QR Designer", icon: Wand2 },
+  { href: "/admin/certificates", label: "Certificates", icon: Award },
 ];
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const { isAdmin, loading } = useAuth();
+
+  if (loading) return;
+
+  NAV = !isAdmin ? NAV : NAV.filter((li) => li.href === "/admin/recruitment");
 
   return (
     <div className="container-page py-8">
       {/* Breadcrumb */}
       <div className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
-        <Link href="/dashboard"
-          className="hover:text-foreground flex items-center gap-1 transition-colors">
+        <Link
+          href="/dashboard"
+          className="hover:text-foreground flex items-center gap-1 transition-colors"
+        >
           <LayoutDashboard className="size-3.5" /> Dashboard
         </Link>
         <ChevronRight className="size-3" />
@@ -66,7 +68,7 @@ export default function AdminLayout({ children }) {
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     active
                       ? "bg-accent text-foreground"
-                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                   )}
                 >
                   <item.icon className="size-4 shrink-0" />

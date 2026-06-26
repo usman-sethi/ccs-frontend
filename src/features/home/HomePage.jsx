@@ -27,7 +27,8 @@ const fadeUp = {
 };
 
 export default function HomePage() {
-  const { isLoggedInRef, isAdmin, isDeveloper, isRecruited, isKnown } = useAuth();
+  const { isLoggedInRef, isAdmin, isDeveloper, isRecruited, isKnown } =
+    useAuth();
 
   const { content } = useSiteContent();
   const {
@@ -60,7 +61,7 @@ export default function HomePage() {
             className="pointer-events-none absolute inset-0 -z-10"
           >
             <Image
-              priority={true}
+              priority
               src={HERO_IMG}
               className="w-full h-full object-cover"
               alt=""

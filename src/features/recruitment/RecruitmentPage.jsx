@@ -21,6 +21,7 @@ import {
 import { useSiteContent } from "@/context/SiteContentContext";
 import { submitRecruitment } from "@/lib/api";
 import { DEPARTMENTS } from "@/constants/society";
+import { useAuth } from "@/context/AuthContext";
 
 const SEMESTERS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
 
@@ -43,6 +44,7 @@ export default function RecruitmentPage() {
   const CLUBS = content.clubs;
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { setIsKnown } = useAuth();
 
   // if recruited
   useEffect(() => {
@@ -69,6 +71,7 @@ export default function RecruitmentPage() {
     setBusy(true);
     try {
       await submitRecruitment(values);
+      setIsKnown(true);
       localStorage.setItem("isRecruited", JSON.stringify(true));
       setDone(true);
     } catch (e) {
@@ -161,12 +164,15 @@ export default function RecruitmentPage() {
                 label="Full name"
                 error={form.formState.errors.fullName?.message}
               >
-                <Input placeholder="Full Name" {...form.register("fullName")} />
+                <Input
+                  placeholder="e.g, Muhammad Musa"
+                  {...form.register("fullName")}
+                />
               </Field>
               <Field label="Email" error={form.formState.errors.email?.message}>
                 <Input
                   type="email"
-                  placeholder="you@university.edu"
+                  placeholder="musa@example.com"
                   {...form.register("email")}
                 />
               </Field>

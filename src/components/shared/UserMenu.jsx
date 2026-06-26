@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Shield,
   User as UserIcon,
+  CodeXml,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -21,7 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 
 export function UserMenu() {
-  const { user, isAdmin, loading, signOut, isKnown } = useAuth();
+  const { user, isAdmin, loading, isDeveloper, signOut, isKnown } = useAuth();
   const router = useRouter();
 
   if (loading) return <div className="size-9" aria-hidden />;
@@ -85,15 +86,17 @@ export function UserMenu() {
             <LayoutDashboard className="mr-2 size-4" /> Dashboard
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard" className="cursor-pointer">
-            <UserIcon className="mr-2 size-4" /> Profile
-          </Link>
-        </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem asChild>
             <Link href="/admin" className="cursor-pointer">
               <Shield className="mr-2 size-4" /> Admin
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {isDeveloper && (
+          <DropdownMenuItem asChild>
+            <Link href="/admin" className="cursor-pointer">
+              <CodeXml className="mr-2 size-4" /> Developer
             </Link>
           </DropdownMenuItem>
         )}

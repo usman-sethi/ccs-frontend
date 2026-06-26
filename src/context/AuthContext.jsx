@@ -19,6 +19,7 @@ const AuthContext = createContext({
   isAdmin: false,
   isDeveloper: false,
   isKnown: false,
+  setIsKnown: async () => {},
   signIn: async () => {},
   signUp: async () => {},
   twoFactorAuth: async () => {},
@@ -37,9 +38,12 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDeveloper, setIsDeveloper] = useState(false);
   const isLoggedInRef = useRef(null);
+  const [isKnown, setIsKnown] = useState(false);
 
-  const isKnown =
-    isAdmin || isDeveloper || isLoggedInRef.current || isRecruited;
+  useEffect(() => {
+    if (isAdmin || isDeveloper || isLoggedInRef.current || isRecruited)
+      setIsKnown(true);
+  }, [isAdmin, isDeveloper, isLoggedInRef.current, isRecruited]);
 
   useEffect(() => {
     if (!user || !isLoggedInRef.current) return;
@@ -123,6 +127,7 @@ export function AuthProvider({ children }) {
         isRecruited,
         loading,
         isKnown,
+        setIsKnown,
         isAdmin,
         isDeveloper,
         isRecruited,
