@@ -61,13 +61,15 @@ export function UserMenu() {
     "U";
 
   const handleSignOut = async () => {
+    if (!user) return;
+    
     try {
       await signOut();
       setIsAdmin(false);
       setIsDeveloper(false);
       isLoggedIn.current = false;
       toast.success("Signed out");
-      router.push("/")
+      router.push("/");
     } catch {
       toast.error("Sign out failed");
     }
