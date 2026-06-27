@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   Shield,
@@ -275,9 +276,14 @@ function CardSection({ user }) {
 ═══════════════════════════════════════ */
 export default function DashboardPage() {
   const { user, isAdmin, isDeveloper, updateProfile } = useAuth();
+  const router = useRouter()
   const [busy, setBusy] = useState(false);
   const [avatarDialog, setAvatarDialog] = useState(false);
   const [avatar, setAvatar] = useState(user?.avatarUrl || "");
+
+  useEffect(() => {
+    if (!user) router.push("/")
+  })
 
   // Real certificates from the certificate system
   const [certs, setCerts] = useState([]);

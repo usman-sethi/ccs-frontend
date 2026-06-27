@@ -45,7 +45,7 @@ function OtpCell({ value, active, hasError }) {
 }
 
 export default function TwoFAPage() {
-  const { twoFactorAuth, setUser, resendOTP } = useAuth();
+  const { twoFactorAuth, setUser, resendOTP, isLoggedInRef } = useAuth();
 
   const router = useRouter();
   const [email, setEmail] = useState("you email");
@@ -139,6 +139,7 @@ export default function TwoFAPage() {
       const data = await twoFactorAuth(email, code);
       setUser(data.user);
       sessionStorage.removeItem("email");
+      isLoggedInRef.current = true;
       localStorage.setItem("loggedIn", JSON.stringify(true));
       toast.success("Verified! Welcome back.");
       router.push("/dashboard");

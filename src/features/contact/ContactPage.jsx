@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +14,7 @@ import {
   Instagram,
   Facebook,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import { PageHeader } from "@/components/shared/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,9 +63,16 @@ export default function ContactPage() {
   const SOCIETY = content.society;
   const [submitting, setSubmitting] = useState(false);
 
+  const { user } = useAuth();
+
   const form = useForm({
     resolver: zodResolver(Schema),
-    defaultValues: { name: "", email: "", subject: "", message: "" },
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    },
   });
 
   const onSubmit = async (values) => {
@@ -72,7 +80,7 @@ export default function ContactPage() {
     try {
       await submitContact(values);
       toast.success("Message sent", {
-        description: "We'll get back to you within 2 business days",
+        description: "We'll get back to you within 24 hours.",
       });
       form.reset();
     } catch (e) {
@@ -81,6 +89,14 @@ export default function ContactPage() {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (user?.email) {
+      form.setValue("email", user.email, {
+        shouldValidate: true,
+      });
+    }
+  }, [user, form]);
 
   return (
     <>
@@ -161,8 +177,9 @@ export default function ContactPage() {
             >
               <Input
                 id="cemail"
-                placeholder="musa@example.com"
+                placeholder={user?.email ? user?.email : "musa@example.com"}
                 type="email"
+                disabled={user?.email}
                 {...form.register("email")}
               />
             </Field>

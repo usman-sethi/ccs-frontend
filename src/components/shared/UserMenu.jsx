@@ -22,7 +22,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 
 export function UserMenu() {
-  const { user, isAdmin, loading, isDeveloper, signOut, isKnown } = useAuth();
+  const {
+    user,
+    isAdmin,
+    setIsAdmin,
+    setIsDeveloper,
+    loading,
+    isLoggedIn,
+    isDeveloper,
+    signOut,
+    isKnown,
+  } = useAuth();
   const router = useRouter();
 
   if (loading) return <div className="size-9" aria-hidden />;
@@ -53,8 +63,11 @@ export function UserMenu() {
   const handleSignOut = async () => {
     try {
       await signOut();
+      setIsAdmin(false);
+      setIsDeveloper(false);
+      isLoggedIn.current = false;
       toast.success("Signed out");
-      router.push("/");
+      router.push("/")
     } catch {
       toast.error("Sign out failed");
     }

@@ -208,13 +208,15 @@ export function Navbar() {
                   </Link>
                 );
               })}
-              <Link
-                href="/recruitment"
-                style={{ background: "var(--nav-btn-bg)" }}
-                className="mt-2 flex items-center justify-center rounded-md py-2 text-sm font-semibold text-white hover:opacity-90"
-              >
-                Join CCS
-              </Link>
+              {!isKnown && (
+                <Link
+                  href="/recruitment"
+                  style={{ background: "var(--nav-btn-bg)" }}
+                  className="mt-2 flex items-center justify-center rounded-md py-2 text-sm font-semibold text-white hover:opacity-90"
+                >
+                  Join CCS
+                </Link>
+              )}
             </nav>
           </motion.div>
         )}

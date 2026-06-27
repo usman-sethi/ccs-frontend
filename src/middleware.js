@@ -49,7 +49,10 @@ export async function middleware(req) {
     pathname.startsWith("/admin/recruitment/");
 
   // Guest
-  if (isGuest && (isAdminPath || isRestrictedPath)) {
+  if (
+    isGuest &&
+    (isAdminPath || isRestrictedPath || pathname.startsWith("/dashboard"))
+  ) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
