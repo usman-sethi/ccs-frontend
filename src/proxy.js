@@ -34,6 +34,7 @@ export async function proxy(req) {
   ];
 
   const payload = await verifyToken(token);
+  console.log(payload)
 
   const isGuest = !payload;
   const isUser = payload?.role === "user";
