@@ -89,10 +89,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signOut = useCallback(async () => {
-    await api.signOut();
+    if (!user && !isLoggedInRef.current) return;
+    const res = await api.signOut();
+
+    setIsAdmin(false);
+    setIsDeveloper(false);
+    isLoggedInRef.current = false;
+
     setUser(null);
     localStorage.removeItem("loggedIn");
     localStorage.removeItem(AUTH_STORAGE_KEY);
+
+    return res;
   }, []);
 
   const forgotPassword = useCallback(async (email) => {
