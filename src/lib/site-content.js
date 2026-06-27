@@ -200,7 +200,7 @@ export const DEFAULT_SITE_CONTENT = {
         "The AI Club fosters curiosity, critical thinking, and innovation. Members explore transformative technologies, collaborate on projects, and prepare for advanced opportunities in the future.",
       tagline: "Imagine what comes next.",
       members: 68,
-      leads: ["Sara Iqbal", "Bilal Ahmed"],
+      leads: ["Waqas Ali", "Wareesha"],
       people: seedMembers("ai"),
     },
     {
@@ -245,7 +245,7 @@ export const DEFAULT_SITE_CONTENT = {
         "The Computer Science Club brings together curious and ambitious students who want to deepen their understanding of computing. Through collaboration, discussions, and hands-on experiences, members strengthen their foundations and prepare for advanced programs, projects, and future opportunities.",
       tagline: "Think. Solve. Innovate.",
       members: 80,
-      leads: ["Anum Yousaf"],
+      leads: ["Waqas Khan"],
       people: seedMembers("md"),
     },
     {
@@ -259,7 +259,7 @@ export const DEFAULT_SITE_CONTENT = {
         "The Study Circle serves as the starting point for many CCS members. It provides a space to learn, collaborate, and build the confidence and foundations needed to take on future programs, projects, and leadership opportunities.",
       tagline: "Learn today. Lead tomorrow.",
       members: 22,
-      leads: ["Fajar Zeb"],
+      leads: ["Fajar Zeb", "Nasir Khan"],
       people: seedMembers("dev", "Daniyal Sheikh", "Anum Yousaf"),
     },
     {
