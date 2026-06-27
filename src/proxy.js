@@ -9,7 +9,8 @@ const verifyToken = async (token) => {
     const { payload } = await jwtVerify(token, secret);
 
     return payload;
-  } catch {
+  } catch (err) {
+    console.error("JWT Verify Error:", err);
     return null;
   }
 };
@@ -34,7 +35,6 @@ export async function proxy(req) {
   ];
 
   const payload = await verifyToken(token);
-  console.log(payload)
 
   const isGuest = !payload;
   const isUser = payload?.role === "user";
