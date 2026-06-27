@@ -7,12 +7,24 @@
 //  • Tab 3: Issued     — history of every issued certificate
 // ────────────────────────────────────────────────────────────
 
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import backendMiddleware from "@/backend-middleware";
 import {
-  useCallback, useEffect, useMemo, useRef, useState,
-} from "react";
-import {
-  Award, Plus, Upload, Trash2, Pencil, Download, Eye,
-  X, Check, RefreshCw, Move, Type, Search, ChevronDown,
+  Award,
+  Plus,
+  Upload,
+  Trash2,
+  Pencil,
+  Download,
+  Eye,
+  X,
+  Check,
+  RefreshCw,
+  Move,
+  Type,
+  Search,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -24,18 +36,36 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/shared/EmptyState";
 import {
-  getTemplates, createTemplate, updateTemplate, deleteTemplate,
-  getIssuedCertificates, issueCertificate, deleteIssuedCertificate,
-  getCertificatesFor, seedDemoTemplates, seedDemoIssuedCerts,
-  renderCertificateToCanvas, downloadCertificate,
-  fileToDataUrl, getImageDimensions,
+  getTemplates,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate,
+  getIssuedCertificates,
+  issueCertificate,
+  deleteIssuedCertificate,
+  getCertificatesFor,
+  seedDemoTemplates,
+  seedDemoIssuedCerts,
+  renderCertificateToCanvas,
+  downloadCertificate,
+  fileToDataUrl,
+  getImageDimensions,
   CATEGORY_THEMES,
 } from "@/lib/certificate-templates";
 import { cn } from "@/lib/utils";
@@ -44,10 +74,10 @@ import { cn } from "@/lib/utils";
    Constants
 ───────────────────────────────────────────── */
 const CATEGORIES = [
-  { value: "member",        label: "Member"        },
-  { value: "leader",        label: "Leader"        },
-  { value: "winner",        label: "Winner"        },
-  { value: "workshop",      label: "Workshop"      },
+  { value: "member", label: "Member" },
+  { value: "leader", label: "Leader" },
+  { value: "winner", label: "Winner" },
+  { value: "workshop", label: "Workshop" },
   { value: "participation", label: "Participation" },
 ];
 
@@ -61,7 +91,7 @@ const FONT_FAMILIES = [
 ];
 
 const FONT_WEIGHTS = ["normal", "bold", "600"];
-const TEXT_ALIGNS  = ["left", "center", "right"];
+const TEXT_ALIGNS = ["left", "center", "right"];
 
 /* ─────────────────────────────────────────────
    TemplateEditor  — visual drag-and-drop field editor
@@ -72,7 +102,9 @@ function TemplateEditor({ template, onSave, onClose }) {
     ...template,
     fields: template.fields.map((f) => ({ ...f })),
   }));
-  const [selectedFieldId, setSelectedFieldId] = useState(draft.fields[0]?.id ?? null);
+  const [selectedFieldId, setSelectedFieldId] = useState(
+    draft.fields[0]?.id ?? null,
+  );
   const [dragState, setDragState] = useState(null);
   const containerRef = useRef(null);
   const previewCanvasRef = useRef(null);
@@ -115,32 +147,42 @@ function TemplateEditor({ template, onSave, onClose }) {
   };
 
   // ── Drag handlers ──
-  const startDrag = useCallback((e, fieldId) => {
-    e.preventDefault();
-    const field = draft.fields.find((f) => f.id === fieldId);
-    if (!field) return;
-    setSelectedFieldId(fieldId);
-    setDragState({
-      fieldId,
-      startClientX: e.clientX,
-      startClientY: e.clientY,
-      origX: field.x,
-      origY: field.y,
-    });
-  }, [draft.fields]);
+  const startDrag = useCallback(
+    (e, fieldId) => {
+      e.preventDefault();
+      const field = draft.fields.find((f) => f.id === fieldId);
+      if (!field) return;
+      setSelectedFieldId(fieldId);
+      setDragState({
+        fieldId,
+        startClientX: e.clientX,
+        startClientY: e.clientY,
+        origX: field.x,
+        origY: field.y,
+      });
+    },
+    [draft.fields],
+  );
 
-  const onMouseMove = useCallback((e) => {
-    if (!dragState || !containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const scaleX = draft.bgImageWidth  / rect.width;
-    const scaleY = draft.bgImageHeight / rect.height;
-    const dx = (e.clientX - dragState.startClientX) * scaleX;
-    const dy = (e.clientY - dragState.startClientY) * scaleY;
-    updateField(dragState.fieldId, {
-      x: Math.round(Math.max(0, Math.min(draft.bgImageWidth,  dragState.origX + dx))),
-      y: Math.round(Math.max(0, Math.min(draft.bgImageHeight, dragState.origY + dy))),
-    });
-  }, [dragState, draft.bgImageWidth, draft.bgImageHeight]);
+  const onMouseMove = useCallback(
+    (e) => {
+      if (!dragState || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const scaleX = draft.bgImageWidth / rect.width;
+      const scaleY = draft.bgImageHeight / rect.height;
+      const dx = (e.clientX - dragState.startClientX) * scaleX;
+      const dy = (e.clientY - dragState.startClientY) * scaleY;
+      updateField(dragState.fieldId, {
+        x: Math.round(
+          Math.max(0, Math.min(draft.bgImageWidth, dragState.origX + dx)),
+        ),
+        y: Math.round(
+          Math.max(0, Math.min(draft.bgImageHeight, dragState.origY + dy)),
+        ),
+      });
+    },
+    [dragState, draft.bgImageWidth, draft.bgImageHeight],
+  );
 
   const onMouseUp = useCallback(() => setDragState(null), []);
 
@@ -159,7 +201,7 @@ function TemplateEditor({ template, onSave, onClose }) {
     if (!canvas) return;
     setPreviewing(true);
     const sampleValues = Object.fromEntries(
-      draft.fields.map((f) => [f.id, f.placeholder])
+      draft.fields.map((f) => [f.id, f.placeholder]),
     );
     try {
       await renderCertificateToCanvas(canvas, draft, sampleValues, 1000);
@@ -174,14 +216,22 @@ function TemplateEditor({ template, onSave, onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-3 shrink-0">
           <div>
-            <DialogTitle className="text-base">Edit template — {draft.name}</DialogTitle>
+            <DialogTitle className="text-base">
+              Edit template — {draft.name}
+            </DialogTitle>
             <DialogDescription className="text-xs mt-0.5">
               Drag fields to reposition them. Click a field to edit its style.
             </DialogDescription>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={renderPreview} disabled={previewing}>
-              <Eye className="size-3.5 mr-1.5" /> {previewing ? "Rendering…" : "Preview"}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={renderPreview}
+              disabled={previewing}
+            >
+              <Eye className="size-3.5 mr-1.5" />{" "}
+              {previewing ? "Rendering…" : "Preview"}
             </Button>
             <Button size="sm" onClick={() => onSave(draft)}>
               <Check className="size-3.5 mr-1.5" /> Save
@@ -197,7 +247,10 @@ function TemplateEditor({ template, onSave, onClose }) {
               <canvas
                 ref={previewCanvasRef}
                 className="w-full max-w-2xl mx-auto rounded-lg border border-border shadow"
-                style={{ aspectRatio: `${draft.bgImageWidth} / ${draft.bgImageHeight}`, imageRendering: "pixelated" }}
+                style={{
+                  aspectRatio: `${draft.bgImageWidth} / ${draft.bgImageHeight}`,
+                  imageRendering: "pixelated",
+                }}
               />
             </div>
 
@@ -205,7 +258,9 @@ function TemplateEditor({ template, onSave, onClose }) {
             <div
               ref={containerRef}
               className="relative mx-auto max-w-3xl select-none"
-              style={{ aspectRatio: `${draft.bgImageWidth} / ${draft.bgImageHeight}` }}
+              style={{
+                aspectRatio: `${draft.bgImageWidth} / ${draft.bgImageHeight}`,
+              }}
             >
               {/* Background image */}
               <img
@@ -217,14 +272,17 @@ function TemplateEditor({ template, onSave, onClose }) {
 
               {/* Field overlays */}
               {draft.fields.map((field) => {
-                const leftPct = (field.x / draft.bgImageWidth)  * 100;
-                const topPct  = (field.y / draft.bgImageHeight) * 100;
+                const leftPct = (field.x / draft.bgImageWidth) * 100;
+                const topPct = (field.y / draft.bgImageHeight) * 100;
                 const isSelected = selectedFieldId === field.id;
 
                 // Approximate display font size
                 const containerW = containerRef.current?.clientWidth || 800;
                 const displayScale = containerW / draft.bgImageWidth;
-                const displayFontSize = Math.max(8, Math.round(field.fontSize * displayScale));
+                const displayFontSize = Math.max(
+                  8,
+                  Math.round(field.fontSize * displayScale),
+                );
 
                 return (
                   <div
@@ -233,11 +291,11 @@ function TemplateEditor({ template, onSave, onClose }) {
                       "absolute cursor-move rounded px-1.5 py-0.5 transition-all",
                       isSelected
                         ? "outline outline-2 outline-primary bg-primary/10"
-                        : "outline outline-1 outline-dashed outline-muted-foreground/40 hover:outline-foreground/40"
+                        : "outline outline-1 outline-dashed outline-muted-foreground/40 hover:outline-foreground/40",
                     )}
                     style={{
                       left: `${leftPct}%`,
-                      top:  `${topPct}%`,
+                      top: `${topPct}%`,
                       transform: `translate(${field.textAlign === "center" ? "-50%" : field.textAlign === "right" ? "-100%" : "0"}, -50%)`,
                       fontSize: `${displayFontSize}px`,
                       fontFamily: field.fontFamily,
@@ -267,7 +325,9 @@ function TemplateEditor({ template, onSave, onClose }) {
                 <Label className="text-xs font-medium">Name</Label>
                 <Input
                   value={draft.name}
-                  onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))}
+                  onChange={(e) =>
+                    setDraft((p) => ({ ...p, name: e.target.value }))
+                  }
                   className="h-7 text-xs"
                 />
               </div>
@@ -275,12 +335,22 @@ function TemplateEditor({ template, onSave, onClose }) {
                 <Label className="text-xs font-medium">Category</Label>
                 <Select
                   value={draft.category}
-                  onValueChange={(v) => setDraft((p) => ({ ...p, category: v }))}
+                  onValueChange={(v) =>
+                    setDraft((p) => ({ ...p, category: v }))
+                  }
                 >
-                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map((c) => (
-                      <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>
+                      <SelectItem
+                        key={c.value}
+                        value={c.value}
+                        className="text-xs"
+                      >
+                        {c.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -290,8 +360,15 @@ function TemplateEditor({ template, onSave, onClose }) {
             {/* Fields list + add */}
             <div className="border-b border-border p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fields</p>
-                <Button size="sm" variant="outline" className="h-6 px-2 text-[10px]" onClick={addField}>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Fields
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-6 px-2 text-[10px]"
+                  onClick={addField}
+                >
                   <Plus className="size-3 mr-0.5" /> Add
                 </Button>
               </div>
@@ -302,7 +379,7 @@ function TemplateEditor({ template, onSave, onClose }) {
                     "flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer transition-colors",
                     selectedFieldId === field.id
                       ? "bg-accent text-foreground"
-                      : "hover:bg-accent/50 text-muted-foreground"
+                      : "hover:bg-accent/50 text-muted-foreground",
                   )}
                   onClick={() => setSelectedFieldId(field.id)}
                 >
@@ -310,7 +387,10 @@ function TemplateEditor({ template, onSave, onClose }) {
                   <span className="flex-1 text-xs truncate">{field.label}</span>
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); removeField(field.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeField(field.id);
+                    }}
                     className="shrink-0 text-muted-foreground hover:text-destructive"
                   >
                     <X className="size-3" />
@@ -327,14 +407,30 @@ function TemplateEditor({ template, onSave, onClose }) {
                 </p>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">Field label (admin only)</Label>
-                  <Input className="h-7 text-xs" value={selectedField.label}
-                    onChange={(e) => updateField(selectedField.id, { label: e.target.value })} />
+                  <Label className="text-xs font-medium">
+                    Field label (admin only)
+                  </Label>
+                  <Input
+                    className="h-7 text-xs"
+                    value={selectedField.label}
+                    onChange={(e) =>
+                      updateField(selectedField.id, { label: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">Sample / placeholder text</Label>
-                  <Input className="h-7 text-xs" value={selectedField.placeholder || ""}
-                    onChange={(e) => updateField(selectedField.id, { placeholder: e.target.value })} />
+                  <Label className="text-xs font-medium">
+                    Sample / placeholder text
+                  </Label>
+                  <Input
+                    className="h-7 text-xs"
+                    value={selectedField.placeholder || ""}
+                    onChange={(e) =>
+                      updateField(selectedField.id, {
+                        placeholder: e.target.value,
+                      })
+                    }
+                  />
                 </div>
 
                 <Separator />
@@ -342,25 +438,53 @@ function TemplateEditor({ template, onSave, onClose }) {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium">X (px)</Label>
-                    <Input type="number" className="h-7 text-xs" value={selectedField.x}
-                      onChange={(e) => updateField(selectedField.id, { x: Number(e.target.value) })} />
+                    <Input
+                      type="number"
+                      className="h-7 text-xs"
+                      value={selectedField.x}
+                      onChange={(e) =>
+                        updateField(selectedField.id, {
+                          x: Number(e.target.value),
+                        })
+                      }
+                    />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium">Y (px)</Label>
-                    <Input type="number" className="h-7 text-xs" value={selectedField.y}
-                      onChange={(e) => updateField(selectedField.id, { y: Number(e.target.value) })} />
+                    <Input
+                      type="number"
+                      className="h-7 text-xs"
+                      value={selectedField.y}
+                      onChange={(e) =>
+                        updateField(selectedField.id, {
+                          y: Number(e.target.value),
+                        })
+                      }
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium">Font family</Label>
-                  <Select value={selectedField.fontFamily}
-                    onValueChange={(v) => updateField(selectedField.id, { fontFamily: v })}>
-                    <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                  <Select
+                    value={selectedField.fontFamily}
+                    onValueChange={(v) =>
+                      updateField(selectedField.id, { fontFamily: v })
+                    }
+                  >
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       {FONT_FAMILIES.map((f) => (
-                        <SelectItem key={f} value={f} className="text-xs"
-                          style={{ fontFamily: f }}>{f.split(",")[0]}</SelectItem>
+                        <SelectItem
+                          key={f}
+                          value={f}
+                          className="text-xs"
+                          style={{ fontFamily: f }}
+                        >
+                          {f.split(",")[0]}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -369,17 +493,37 @@ function TemplateEditor({ template, onSave, onClose }) {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium">Size (px)</Label>
-                    <Input type="number" className="h-7 text-xs" value={selectedField.fontSize}
-                      onChange={(e) => updateField(selectedField.id, { fontSize: Number(e.target.value) })} />
+                    <Input
+                      type="number"
+                      className="h-7 text-xs"
+                      value={selectedField.fontSize}
+                      onChange={(e) =>
+                        updateField(selectedField.id, {
+                          fontSize: Number(e.target.value),
+                        })
+                      }
+                    />
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium">Weight</Label>
-                    <Select value={selectedField.fontWeight || "normal"}
-                      onValueChange={(v) => updateField(selectedField.id, { fontWeight: v })}>
-                      <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                    <Select
+                      value={selectedField.fontWeight || "normal"}
+                      onValueChange={(v) =>
+                        updateField(selectedField.id, { fontWeight: v })
+                      }
+                    >
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {FONT_WEIGHTS.map((w) => (
-                          <SelectItem key={w} value={w} className="text-xs capitalize">{w}</SelectItem>
+                          <SelectItem
+                            key={w}
+                            value={w}
+                            className="text-xs capitalize"
+                          >
+                            {w}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -393,21 +537,44 @@ function TemplateEditor({ template, onSave, onClose }) {
                       <input
                         type="color"
                         value={selectedField.color || "#000000"}
-                        onChange={(e) => updateField(selectedField.id, { color: e.target.value })}
+                        onChange={(e) =>
+                          updateField(selectedField.id, {
+                            color: e.target.value,
+                          })
+                        }
                         className="h-7 w-10 cursor-pointer rounded border border-border bg-transparent p-0.5"
                       />
-                      <Input className="h-7 text-xs flex-1 font-mono" value={selectedField.color || "#000000"}
-                        onChange={(e) => updateField(selectedField.id, { color: e.target.value })} />
+                      <Input
+                        className="h-7 text-xs flex-1 font-mono"
+                        value={selectedField.color || "#000000"}
+                        onChange={(e) =>
+                          updateField(selectedField.id, {
+                            color: e.target.value,
+                          })
+                        }
+                      />
                     </div>
                   </div>
                   <div className="space-y-1">
                     <Label className="text-[10px] font-medium">Align</Label>
-                    <Select value={selectedField.textAlign || "center"}
-                      onValueChange={(v) => updateField(selectedField.id, { textAlign: v })}>
-                      <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                    <Select
+                      value={selectedField.textAlign || "center"}
+                      onValueChange={(v) =>
+                        updateField(selectedField.id, { textAlign: v })
+                      }
+                    >
+                      <SelectTrigger className="h-7 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {TEXT_ALIGNS.map((a) => (
-                          <SelectItem key={a} value={a} className="text-xs capitalize">{a}</SelectItem>
+                          <SelectItem
+                            key={a}
+                            value={a}
+                            className="text-xs capitalize"
+                          >
+                            {a}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -418,16 +585,24 @@ function TemplateEditor({ template, onSave, onClose }) {
                   <Label className="text-xs font-medium">Text shadow</Label>
                   <button
                     type="button"
-                    onClick={() => updateField(selectedField.id, { shadow: !selectedField.shadow })}
+                    onClick={() =>
+                      updateField(selectedField.id, {
+                        shadow: !selectedField.shadow,
+                      })
+                    }
                     className={cn(
                       "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                      selectedField.shadow ? "bg-primary" : "bg-input"
+                      selectedField.shadow ? "bg-primary" : "bg-input",
                     )}
                   >
-                    <span className={cn(
-                      "inline-block size-4 rounded-full bg-background shadow transition-transform",
-                      selectedField.shadow ? "translate-x-4" : "translate-x-0.5"
-                    )} />
+                    <span
+                      className={cn(
+                        "inline-block size-4 rounded-full bg-background shadow transition-transform",
+                        selectedField.shadow
+                          ? "translate-x-4"
+                          : "translate-x-0.5",
+                      )}
+                    />
                   </button>
                 </div>
               </div>
@@ -444,7 +619,9 @@ function TemplateEditor({ template, onSave, onClose }) {
 ───────────────────────────────────────────── */
 function TemplateCard({ template, onEdit, onDelete, onIssue }) {
   const theme = CATEGORY_THEMES[template.category] || CATEGORY_THEMES.member;
-  const catLabel = CATEGORIES.find((c) => c.value === template.category)?.label ?? template.category;
+  const catLabel =
+    CATEGORIES.find((c) => c.value === template.category)?.label ??
+    template.category;
 
   return (
     <div className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-foreground/20 hover:shadow-md">
@@ -458,10 +635,19 @@ function TemplateCard({ template, onEdit, onDelete, onIssue }) {
         />
         {/* Action overlay */}
         <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button size="sm" variant="secondary" className="h-7 gap-1 text-xs" onClick={() => onEdit(template)}>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-7 gap-1 text-xs"
+            onClick={() => onEdit(template)}
+          >
             <Pencil className="size-3" /> Edit
           </Button>
-          <Button size="sm" className="h-7 gap-1 text-xs" onClick={() => onIssue(template)}>
+          <Button
+            size="sm"
+            className="h-7 gap-1 text-xs"
+            onClick={() => onIssue(template)}
+          >
             <Award className="size-3" /> Issue
           </Button>
         </div>
@@ -473,7 +659,10 @@ function TemplateCard({ template, onEdit, onDelete, onIssue }) {
           <Badge
             variant="secondary"
             className="mt-0.5 text-[10px]"
-            style={{ backgroundColor: `${theme.ribbon}20`, color: theme.ribbon }}
+            style={{
+              backgroundColor: `${theme.ribbon}20`,
+              color: theme.ribbon,
+            }}
           >
             {catLabel}
           </Badge>
@@ -495,7 +684,9 @@ function TemplateCard({ template, onEdit, onDelete, onIssue }) {
    IssueForm  — fill values, preview, download
 ───────────────────────────────────────────── */
 function IssueTab({ templates, defaultTemplateId }) {
-  const [selectedTmplId, setSelectedTmplId] = useState(defaultTemplateId ?? templates[0]?.id ?? "");
+  const [selectedTmplId, setSelectedTmplId] = useState(
+    defaultTemplateId ?? templates[0]?.id ?? "",
+  );
   const [fieldValues, setFieldValues] = useState({});
   const [recipientEmail, setRecipientEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -520,7 +711,12 @@ function IssueTab({ templates, defaultTemplateId }) {
     setPreviewing(true);
     setPreviewReady(false);
     try {
-      await renderCertificateToCanvas(previewCanvasRef.current, tmpl, fieldValues, 900);
+      await renderCertificateToCanvas(
+        previewCanvasRef.current,
+        tmpl,
+        fieldValues,
+        900,
+      );
       setPreviewReady(true);
     } finally {
       setPreviewing(false);
@@ -531,8 +727,14 @@ function IssueTab({ templates, defaultTemplateId }) {
     if (!tmpl) return;
     setBusy(true);
     try {
-      const safeName = (fieldValues.name || "certificate").toLowerCase().replace(/\s+/g, "-");
-      await downloadCertificate(tmpl, fieldValues, `${safeName}-certificate.png`);
+      const safeName = (fieldValues.name || "certificate")
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+      await downloadCertificate(
+        tmpl,
+        fieldValues,
+        `${safeName}-certificate.png`,
+      );
       toast.success("Certificate downloaded (2000 × high-res PNG)");
     } catch (e) {
       toast.error("Download failed", { description: e.message });
@@ -557,8 +759,14 @@ function IssueTab({ templates, defaultTemplateId }) {
         fieldValues,
       });
       const safeName = fieldValues.name.toLowerCase().replace(/\s+/g, "-");
-      await downloadCertificate(tmpl, fieldValues, `${safeName}-${tmpl.category}-certificate.png`);
-      toast.success(`Certificate issued to ${fieldValues.name} and downloaded.`);
+      await downloadCertificate(
+        tmpl,
+        fieldValues,
+        `${safeName}-${tmpl.category}-certificate.png`,
+      );
+      toast.success(
+        `Certificate issued to ${fieldValues.name} and downloaded.`,
+      );
     } catch (e) {
       toast.error("Failed", { description: e.message });
     } finally {
@@ -581,18 +789,26 @@ function IssueTab({ templates, defaultTemplateId }) {
       {/* Left: Form */}
       <div className="space-y-5">
         <div className="rounded-xl border border-border bg-card p-4 space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Certificate type</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Certificate type
+          </p>
           <Select value={selectedTmplId} onValueChange={setSelectedTmplId}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {templates.map((t) => (
-                <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                <SelectItem key={t.id} value={t.id}>
+                  {t.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Recipient email (optional)</Label>
+            <Label className="text-xs font-medium">
+              Recipient email (optional)
+            </Label>
             <Input
               type="email"
               placeholder="name@university.edu"
@@ -604,7 +820,9 @@ function IssueTab({ templates, defaultTemplateId }) {
 
         {tmpl && (
           <div className="rounded-xl border border-border bg-card p-4 space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fill fields</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Fill fields
+            </p>
             {tmpl.fields.map((field) => (
               <div key={field.id} className="space-y-1.5">
                 <Label className="text-xs font-medium">{field.label}</Label>
@@ -619,13 +837,28 @@ function IssueTab({ templates, defaultTemplateId }) {
         )}
 
         <div className="space-y-2">
-          <Button className="w-full gap-2" variant="outline" onClick={handlePreview} disabled={previewing || !tmpl}>
-            <Eye className="size-4" /> {previewing ? "Generating preview…" : "Preview"}
+          <Button
+            className="w-full gap-2"
+            variant="outline"
+            onClick={handlePreview}
+            disabled={previewing || !tmpl}
+          >
+            <Eye className="size-4" />{" "}
+            {previewing ? "Generating preview…" : "Preview"}
           </Button>
-          <Button className="w-full gap-2" variant="outline" onClick={handleDownloadOnly} disabled={busy || !tmpl}>
+          <Button
+            className="w-full gap-2"
+            variant="outline"
+            onClick={handleDownloadOnly}
+            disabled={busy || !tmpl}
+          >
             <Download className="size-4" /> Download only (no record)
           </Button>
-          <Button className="w-full gap-2" onClick={handleIssueAndDownload} disabled={busy || !tmpl}>
+          <Button
+            className="w-full gap-2"
+            onClick={handleIssueAndDownload}
+            disabled={busy || !tmpl}
+          >
             <Award className="size-4" /> Issue + Download
           </Button>
         </div>
@@ -642,7 +875,10 @@ function IssueTab({ templates, defaultTemplateId }) {
           <canvas
             ref={previewCanvasRef}
             className="w-full rounded-lg border border-border shadow"
-            style={{ aspectRatio: `${tmpl?.bgImageWidth ?? 1.414} / ${tmpl?.bgImageHeight ?? 1}`, imageRendering: "pixelated" }}
+            style={{
+              aspectRatio: `${tmpl?.bgImageWidth ?? 1.414} / ${tmpl?.bgImageHeight ?? 1}`,
+              imageRendering: "pixelated",
+            }}
           />
         ) : (
           <div className="text-center space-y-2 text-muted-foreground">
@@ -675,7 +911,10 @@ function IssuedTab({ templates, onRefresh }) {
 
   const filtered = issued.filter((c) => {
     const s = q.toLowerCase();
-    const matchQ = !s || c.recipientName?.toLowerCase().includes(s) || c.templateName?.toLowerCase().includes(s);
+    const matchQ =
+      !s ||
+      c.recipientName?.toLowerCase().includes(s) ||
+      c.templateName?.toLowerCase().includes(s);
     const matchCat = catFilter === "all" || c.category === catFilter;
     return matchQ && matchCat;
   });
@@ -689,11 +928,18 @@ function IssuedTab({ templates, onRefresh }) {
 
   const handleDownload = async (cert) => {
     const tmpl = templates.find((t) => t.id === cert.templateId);
-    if (!tmpl) { toast.error("Template no longer exists."); return; }
+    if (!tmpl) {
+      toast.error("Template no longer exists.");
+      return;
+    }
     setDownloading(cert.id);
     try {
       const safeName = cert.recipientName.toLowerCase().replace(/\s+/g, "-");
-      await downloadCertificate(tmpl, cert.fieldValues, `${safeName}-${cert.category}-certificate.png`);
+      await downloadCertificate(
+        tmpl,
+        cert.fieldValues,
+        `${safeName}-${cert.category}-certificate.png`,
+      );
       toast.success("Downloaded.");
     } catch (e) {
       toast.error("Download failed", { description: e.message });
@@ -707,13 +953,24 @@ function IssuedTab({ templates, onRefresh }) {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative max-w-xs flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name or template…" className="pl-9" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by name or template…"
+            className="pl-9"
+          />
         </div>
         <Select value={catFilter} onValueChange={setCatFilter}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All categories</SelectItem>
-            {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+            {CATEGORIES.map((c) => (
+              <SelectItem key={c.value} value={c.value}>
+                {c.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button size="sm" variant="outline" onClick={refresh}>
@@ -722,39 +979,61 @@ function IssuedTab({ templates, onRefresh }) {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Award} title="No certificates issued yet"
-          description="Use the Issue tab to generate and issue certificates." />
+        <EmptyState
+          icon={Award}
+          title="No certificates issued yet"
+          description="Use the Issue tab to generate and issue certificates."
+        />
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-surface text-xs text-muted-foreground">
                 <th className="px-4 py-3 text-left font-medium">Recipient</th>
-                <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Template</th>
+                <th className="hidden px-4 py-3 text-left font-medium md:table-cell">
+                  Template
+                </th>
                 <th className="px-4 py-3 text-left font-medium">Category</th>
-                <th className="hidden px-4 py-3 text-left font-medium sm:table-cell">Cert #</th>
+                <th className="hidden px-4 py-3 text-left font-medium sm:table-cell">
+                  Cert #
+                </th>
                 <th className="px-4 py-3 text-left font-medium">Issued</th>
                 <th className="px-4 py-3 text-right font-medium" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((cert) => {
-                const theme = CATEGORY_THEMES[cert.category] || CATEGORY_THEMES.member;
+                const theme =
+                  CATEGORY_THEMES[cert.category] || CATEGORY_THEMES.member;
                 return (
-                  <tr key={cert.id} className="hover:bg-accent/30 transition-colors">
+                  <tr
+                    key={cert.id}
+                    className="hover:bg-accent/30 transition-colors"
+                  >
                     <td className="px-4 py-3">
-                      <p className="text-xs font-semibold">{cert.recipientName}</p>
+                      <p className="text-xs font-semibold">
+                        {cert.recipientName}
+                      </p>
                       {cert.recipientEmail && (
-                        <p className="text-[10px] text-muted-foreground">{cert.recipientEmail}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {cert.recipientEmail}
+                        </p>
                       )}
                     </td>
                     <td className="hidden px-4 py-3 text-xs text-muted-foreground md:table-cell">
                       {cert.templateName}
                     </td>
                     <td className="px-4 py-3">
-                      <Badge variant="secondary" className="text-[10px]"
-                        style={{ backgroundColor: `${theme.ribbon}20`, color: theme.ribbon }}>
-                        {CATEGORIES.find((c) => c.value === cert.category)?.label ?? cert.category}
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px]"
+                        style={{
+                          backgroundColor: `${theme.ribbon}20`,
+                          color: theme.ribbon,
+                        }}
+                      >
+                        {CATEGORIES.find((c) => c.value === cert.category)
+                          ?.label ?? cert.category}
                       </Badge>
                     </td>
                     <td className="hidden px-4 py-3 font-mono text-xs text-muted-foreground sm:table-cell">
@@ -765,16 +1044,25 @@ function IssuedTab({ templates, onRefresh }) {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" className="h-7 text-xs"
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs"
                           disabled={downloading === cert.id}
-                          onClick={() => handleDownload(cert)}>
-                          {downloading === cert.id
-                            ? <RefreshCw className="size-3.5 animate-spin" />
-                            : <Download className="size-3.5" />}
+                          onClick={() => handleDownload(cert)}
+                        >
+                          {downloading === cert.id ? (
+                            <RefreshCw className="size-3.5 animate-spin" />
+                          ) : (
+                            <Download className="size-3.5" />
+                          )}
                         </Button>
-                        <Button size="sm" variant="ghost"
+                        <Button
+                          size="sm"
+                          variant="ghost"
                           className="h-7 text-xs text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(cert.id)}>
+                          onClick={() => handleDelete(cert.id)}
+                        >
                           <Trash2 className="size-3.5" />
                         </Button>
                       </div>
@@ -794,12 +1082,21 @@ function IssuedTab({ templates, onRefresh }) {
    Main Page
 ───────────────────────────────────────────── */
 export default function CertificatesPage() {
-  const [templates, setTemplates]   = useState([]);
-  const [loading, setLoading]       = useState(true);
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [editingTmpl, setEditingTmpl] = useState(null);
   const [issuingTmpl, setIssuingTmpl] = useState(null); // pre-selects in Issue tab
-  const [tab, setTab]               = useState("templates");
+  const [tab, setTab] = useState("templates");
   const fileRef = useRef(null);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("/admin/certificates");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const refreshTemplates = useCallback(() => {
     setTemplates(getTemplates());
@@ -814,7 +1111,9 @@ export default function CertificatesPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { init(); }, [init]);
+  useEffect(() => {
+    init();
+  }, [init]);
 
   /* ── Upload image → new template ── */
   const handleUpload = async (e) => {
@@ -851,7 +1150,8 @@ export default function CertificatesPage() {
   };
 
   const handleDeleteTemplate = (id) => {
-    if (!confirm("Delete this template? Issued certificates are NOT deleted.")) return;
+    if (!confirm("Delete this template? Issued certificates are NOT deleted."))
+      return;
     deleteTemplate(id);
     refreshTemplates();
     toast.success("Template deleted.");
@@ -871,20 +1171,28 @@ export default function CertificatesPage() {
             <Award className="size-5 text-primary" /> Certificates
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Upload PNG/JPG templates, position text fields visually, then issue to members.
+            Upload PNG/JPG templates, position text fields visually, then issue
+            to members.
           </p>
         </div>
         <Button onClick={() => fileRef.current?.click()} className="gap-2">
           <Upload className="size-4" /> Upload template
         </Button>
-        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/jpg"
-          className="hidden" onChange={handleUpload} />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png,image/jpeg,image/jpg"
+          className="hidden"
+          onChange={handleUpload}
+        />
       </div>
 
       {/* Tabs */}
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
-          <TabsTrigger value="templates">Templates ({templates.length})</TabsTrigger>
+          <TabsTrigger value="templates">
+            Templates ({templates.length})
+          </TabsTrigger>
           <TabsTrigger value="issue">Issue</TabsTrigger>
           <TabsTrigger value="issued">Issued</TabsTrigger>
         </TabsList>
@@ -898,9 +1206,11 @@ export default function CertificatesPage() {
               ))}
             </div>
           ) : templates.length === 0 ? (
-            <EmptyState icon={Award}
+            <EmptyState
+              icon={Award}
               title="No templates yet"
-              description="Upload a PNG or JPG certificate design to get started." />
+              description="Upload a PNG or JPG certificate design to get started."
+            />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {templates.map((tmpl) => (
@@ -913,8 +1223,11 @@ export default function CertificatesPage() {
                 />
               ))}
               {/* Upload card */}
-              <button type="button" onClick={() => fileRef.current?.click()}
-                className="group flex aspect-[1.414/1] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="group flex aspect-[1.414/1] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+              >
                 <Upload className="size-6" />
                 <span className="text-xs font-medium">Upload new</span>
               </button>
@@ -924,10 +1237,7 @@ export default function CertificatesPage() {
 
         {/* ── Issue tab ── */}
         <TabsContent value="issue" className="mt-4">
-          <IssueTab
-            templates={templates}
-            defaultTemplateId={issuingTmpl}
-          />
+          <IssueTab templates={templates} defaultTemplateId={issuingTmpl} />
         </TabsContent>
 
         {/* ── Issued tab ── */}

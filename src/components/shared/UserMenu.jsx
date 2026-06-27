@@ -101,7 +101,7 @@ export function UserMenu() {
         </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem asChild>
-            <Link href="/admin/recuitment" className="cursor-pointer">
+            <Link href="/admin/recruitment" className="cursor-pointer">
               <Shield className="mr-2 size-4" /> Admin
             </Link>
           </DropdownMenuItem>

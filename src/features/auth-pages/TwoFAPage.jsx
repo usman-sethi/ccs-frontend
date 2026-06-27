@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { AuthButton } from "@/components/auth/FormField";
 import { cn } from "@/lib/utils";
+import backendMiddleware from "@/backend-middleware";
 import { useAuth } from "@/context/AuthContext";
 
 const OTP_LENGTH = 6;
@@ -152,6 +153,13 @@ export default function TwoFAPage() {
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("2fa");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const handleResend = async () => {
     setResendSecs(RESEND_SECS);

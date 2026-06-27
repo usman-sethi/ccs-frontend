@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import backendMiddleware from "@/backend-middleware";
 import { User, Mail, Lock, GraduationCap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,13 +55,20 @@ export default function SignupPage() {
     },
   });
 
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("signup");
+      if (!result) router.push("/");
+    })();
+  }, []);
+
   const password = form.watch("password");
 
   const onSubmit = async (values) => {
     setBusy(true);
     try {
       await signUp(values.email, values.password);
-      sessionStorage.setItem("email", JSON.stringify(values.email))
+      sessionStorage.setItem("email", JSON.stringify(values.email));
       toast.success("Account created!", {
         description:
           "Check your email to verify your account before signing in.",

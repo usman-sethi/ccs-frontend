@@ -1,18 +1,34 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Download, RefreshCw, Check, Sliders, ChevronDown, Wand2 } from "lucide-react";
+import {
+  Download,
+  RefreshCw,
+  Check,
+  Sliders,
+  ChevronDown,
+  Wand2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useSiteContent } from "@/context/SiteContentContext";
 import {
-  QR_DESIGNS, renderQRToCanvas, downloadCanvasAsPNG,
-  getSavedDesignId, saveDesignId,
+  QR_DESIGNS,
+  renderQRToCanvas,
+  downloadCanvasAsPNG,
+  getSavedDesignId,
+  saveDesignId,
 } from "@/lib/qr-designer";
 import { encodeQrPayload } from "@/lib/qr-payload";
 import { cn } from "@/lib/utils";
@@ -41,7 +57,9 @@ function DesignThumb({ design, selected, onClick }) {
       onClick={onClick}
       className={cn(
         "group relative overflow-hidden rounded-xl border-2 p-0 transition-all duration-200",
-        selected ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-foreground/30"
+        selected
+          ? "border-primary ring-2 ring-primary/30"
+          : "border-border hover:border-foreground/30",
       )}
       aria-label={design.name}
       aria-pressed={selected}
@@ -52,8 +70,12 @@ function DesignThumb({ design, selected, onClick }) {
         style={{ aspectRatio: "1/1", imageRendering: "pixelated" }}
       />
       <div className="bg-gradient-to-t from-black/70 to-transparent px-2 pb-1.5 pt-4">
-        <p className="text-[10px] font-semibold text-white leading-tight truncate">{design.name}</p>
-        <p className="text-[9px] text-white/60 leading-tight truncate">{design.description}</p>
+        <p className="text-[10px] font-semibold text-white leading-tight truncate">
+          {design.name}
+        </p>
+        <p className="text-[9px] text-white/60 leading-tight truncate">
+          {design.description}
+        </p>
       </div>
       {selected && (
         <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -64,10 +86,22 @@ function DesignThumb({ design, selected, onClick }) {
   );
 }
 
+import backendMiddleware from "@/backend-middleware";
+import { useRouter } from "next/navigation";
+
 /* ─── Main page ─── */
 export default function QrDesignerPage() {
   const { raw } = useSiteContent();
   const events = raw.events ?? [];
+
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("/admin/qr-designer");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const mainCanvasRef = useRef(null);
 
@@ -78,7 +112,8 @@ export default function QrDesignerPage() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [rendering, setRendering] = useState(false);
 
-  const selectedDesign = QR_DESIGNS.find((d) => d.id === selectedId) ?? QR_DESIGNS[0];
+  const selectedDesign =
+    QR_DESIGNS.find((d) => d.id === selectedId) ?? QR_DESIGNS[0];
 
   // Build QR content: prefer event QR payload, fall back to custom text or CCS URL
   const getQrText = useCallback(() => {
@@ -128,16 +163,19 @@ export default function QrDesignerPage() {
     renderQRToCanvas(offscreen, getQrText(), selectedDesign.config, exportSize)
       .then(() => {
         downloadCanvasAsPNG(offscreen, fileName);
-        toast.success(`Downloaded as ${fileName} (${exportSize}×${exportSize} px)`);
+        toast.success(
+          `Downloaded as ${fileName} (${exportSize}×${exportSize} px)`,
+        );
       })
       .catch(() => toast.error("Download failed — try again."));
   };
 
   // Filter by tag
   const TAGS = ["all", "blue", "green", "white", "dark"];
-  const filteredDesigns = activeFilter === "all"
-    ? QR_DESIGNS
-    : QR_DESIGNS.filter((d) => d.tags.includes(activeFilter));
+  const filteredDesigns =
+    activeFilter === "all"
+      ? QR_DESIGNS
+      : QR_DESIGNS.filter((d) => d.tags.includes(activeFilter));
 
   return (
     <div className="space-y-6">
@@ -154,7 +192,6 @@ export default function QrDesignerPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
-
         {/* ── Left: Templates ── */}
         <div className="space-y-4">
           {/* Tag filters */}
@@ -168,7 +205,7 @@ export default function QrDesignerPage() {
                   "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors",
                   activeFilter === tag
                     ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:text-foreground"
+                    : "border-border text-muted-foreground hover:text-foreground",
                 )}
               >
                 {tag}
@@ -197,17 +234,24 @@ export default function QrDesignerPage() {
 
         {/* ── Right: Preview + controls ── */}
         <div className="space-y-5">
-
           {/* Live preview canvas */}
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-2.5">
               <div>
                 <p className="text-sm font-semibold">{selectedDesign.name}</p>
-                <p className="text-[11px] text-muted-foreground">{selectedDesign.description}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {selectedDesign.description}
+                </p>
               </div>
               <div className="flex gap-1">
                 {(selectedDesign.tags ?? []).map((t) => (
-                  <Badge key={t} variant="secondary" className="text-[9px] uppercase tracking-wider">{t}</Badge>
+                  <Badge
+                    key={t}
+                    variant="secondary"
+                    className="text-[9px] uppercase tracking-wider"
+                  >
+                    {t}
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -234,13 +278,21 @@ export default function QrDesignerPage() {
 
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Event</Label>
-              <Select value={selectedEventId} onValueChange={(v) => { setSelectedEventId(v); setCustomText(""); }}>
+              <Select
+                value={selectedEventId}
+                onValueChange={(v) => {
+                  setSelectedEventId(v);
+                  setCustomText("");
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select event" />
                 </SelectTrigger>
                 <SelectContent>
                   {events.map((e) => (
-                    <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>
+                    <SelectItem key={e.id} value={e.id}>
+                      {e.title}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -249,7 +301,9 @@ export default function QrDesignerPage() {
             <div className="relative">
               <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center">
                 <div className="flex-1 border-t border-border" />
-                <span className="px-2 text-[10px] text-muted-foreground">OR</span>
+                <span className="px-2 text-[10px] text-muted-foreground">
+                  OR
+                </span>
                 <div className="flex-1 border-t border-border" />
               </div>
             </div>
@@ -258,31 +312,47 @@ export default function QrDesignerPage() {
               <Label className="text-xs font-medium">Custom text / URL</Label>
               <Input
                 value={customText}
-                onChange={(e) => { setCustomText(e.target.value); setSelectedEventId(""); }}
+                onChange={(e) => {
+                  setCustomText(e.target.value);
+                  setSelectedEventId("");
+                }}
                 placeholder="https://… or any text"
                 className="text-xs font-mono"
               />
-              <p className="text-[10px] text-muted-foreground">Leave blank to use the selected event's QR payload.</p>
+              <p className="text-[10px] text-muted-foreground">
+                Leave blank to use the selected event's QR payload.
+              </p>
             </div>
           </div>
 
           {/* Export */}
           <div className="rounded-xl border border-border bg-card p-4 space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Export</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Export
+            </p>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Output size</Label>
-              <Select value={String(exportSize)} onValueChange={(v) => setExportSize(Number(v))}>
+              <Select
+                value={String(exportSize)}
+                onValueChange={(v) => setExportSize(Number(v))}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {EXPORT_SIZES.map((s) => (
-                    <SelectItem key={s.value} value={String(s.value)}>{s.label}</SelectItem>
+                    <SelectItem key={s.value} value={String(s.value)}>
+                      {s.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full gap-2" onClick={handleDownload} disabled={rendering}>
+            <Button
+              className="w-full gap-2"
+              onClick={handleDownload}
+              disabled={rendering}
+            >
               <Download className="size-4" />
               Download PNG ({exportSize}×{exportSize})
             </Button>
@@ -293,11 +363,20 @@ export default function QrDesignerPage() {
 
           {/* Design tip */}
           <div className="rounded-xl border border-dashed border-border bg-card/50 p-4">
-            <p className="text-xs font-semibold text-muted-foreground mb-1">💡 Tip</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-1">
+              💡 Tip
+            </p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              The CCS logo text and colours are set by the design template. To add new custom designs, edit
-              <code className="mx-1 rounded bg-muted px-1 py-0.5 text-[10px]">src/lib/qr-designer.js</code>
-              and add an entry to <code className="mx-1 rounded bg-muted px-1 py-0.5 text-[10px]">QR_DESIGNS</code>.
+              The CCS logo text and colours are set by the design template. To
+              add new custom designs, edit
+              <code className="mx-1 rounded bg-muted px-1 py-0.5 text-[10px]">
+                src/lib/qr-designer.js
+              </code>
+              and add an entry to{" "}
+              <code className="mx-1 rounded bg-muted px-1 py-0.5 text-[10px]">
+                QR_DESIGNS
+              </code>
+              .
             </p>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -11,14 +11,19 @@ import { Mail, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AuthShell } from "@/components/auth/AuthShell";
 import {
-  FormField, PasswordInput, OrDivider, GoogleButton,
-  AuthHeading, AuthButton,
+  FormField,
+  PasswordInput,
+  OrDivider,
+  GoogleButton,
+  AuthHeading,
+  AuthButton,
 } from "@/components/auth/FormField";
 import { useAuth } from "@/context/AuthContext";
+import backendMiddleware from "@/backend-middleware";
 
 const Schema = z.object({
-  email:      z.string().email("Please enter a valid email"),
-  password:   z.string().min(1, "Password is required"),
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean().optional(),
 });
 
@@ -26,6 +31,13 @@ export default function LoginPage() {
   const { signIn } = useAuth();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("login");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const form = useForm({
     resolver: zodResolver(Schema),
@@ -36,8 +48,8 @@ export default function LoginPage() {
     setBusy(true);
     try {
       await signIn(values.email, values.password);
-      sessionStorage.setItem("email", JSON.stringify(values.email))
-       toast.success("Login successful!", {
+      sessionStorage.setItem("email", JSON.stringify(values.email));
+      toast.success("Login successful!", {
         description:
           "Check your email to verify your account and let's get started!",
       });
@@ -50,7 +62,9 @@ export default function LoginPage() {
   };
 
   const handleGoogle = () =>
-    toast.info("Configure Google OAuth in your Express backend to enable this.");
+    toast.info(
+      "Configure Google OAuth in your Express backend to enable this.",
+    );
 
   return (
     <AuthShell backHref="/" backLabel="Back to site">
@@ -59,7 +73,11 @@ export default function LoginPage() {
         subtitle="Sign in to your CCS member account."
       />
 
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4"
+      >
         <FormField
           label="Email address"
           icon={Mail}
@@ -111,7 +129,10 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-medium text-primary hover:underline">
+        <Link
+          href="/signup"
+          className="font-medium text-primary hover:underline"
+        >
           Create one
         </Link>
       </p>

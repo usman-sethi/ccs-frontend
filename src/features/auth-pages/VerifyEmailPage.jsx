@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import backendMiddleware from "@/backend-middleware";
 import { Mail, RotateCcw, CheckCircle2, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { useRouter } from "next/navigation";
 import { forgotPassword } from "@/lib/api";
 
 const RESEND_SECS = 60;
@@ -43,6 +45,14 @@ function EnvelopeIllustration() {
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "your email address";
+  const router = useRouter()
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("verify-email");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const [resendSecs, setResendSecs] = useState(RESEND_SECS);
   const [busy, setBusy] = useState(false);
@@ -78,7 +88,9 @@ export default function VerifyEmailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.3 }}
         >
-          <h1 className="text-2xl font-bold tracking-tight">Verify your email</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Verify your email
+          </h1>
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
             We sent a verification link to{" "}
             <span className="font-semibold text-foreground">{email}</span>.
@@ -95,7 +107,7 @@ export default function VerifyEmailPage() {
         >
           {[
             { num: "1", text: "Open the email we sent you" },
-            { num: "2", text: "Click the \"Verify email\" button" },
+            { num: "2", text: 'Click the "Verify email" button' },
             { num: "3", text: "You'll be redirected to sign in" },
           ].map((step) => (
             <div key={step.num} className="flex items-start gap-3">
@@ -124,10 +136,10 @@ export default function VerifyEmailPage() {
             {resendSecs > 0
               ? `Resend available in ${resendSecs}s`
               : busy
-              ? "Sending…"
-              : resentCount > 0
-              ? "Resend again"
-              : "Resend verification email"}
+                ? "Sending…"
+                : resentCount > 0
+                  ? "Resend again"
+                  : "Resend verification email"}
           </button>
 
           {resentCount > 0 && (
@@ -136,7 +148,8 @@ export default function VerifyEmailPage() {
               animate={{ opacity: 1 }}
               className="text-xs text-emerald-600 dark:text-emerald-400"
             >
-              Email resent {resentCount} time{resentCount > 1 ? "s" : ""}. Check your spam folder too.
+              Email resent {resentCount} time{resentCount > 1 ? "s" : ""}. Check
+              your spam folder too.
             </motion.p>
           )}
 

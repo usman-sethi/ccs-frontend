@@ -45,7 +45,7 @@ export default function HomePage() {
 
   if (isDeveloper || isAdmin) {
     hero.ctaPrimary.label = "Admin Panel";
-    hero.ctaPrimary.to = "/admin";
+    hero.ctaPrimary.to = "/admin/recruitment";
   } else if (isKnown) {
     hero.ctaPrimary.label = "Explore Leadership";
     hero.ctaPrimary.to = "/leadership";

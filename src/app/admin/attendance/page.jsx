@@ -1,9 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import backendMiddleware from "@/backend-middleware";
 import {
-  RefreshCw, QrCode, Search, Trash2, Eye, EyeOff,
-  Users, KeyRound, Download, ExternalLink,
+  RefreshCw,
+  QrCode,
+  Search,
+  Trash2,
+  Eye,
+  EyeOff,
+  Users,
+  KeyRound,
+  Download,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -12,14 +22,23 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useSiteContent } from "@/context/SiteContentContext";
 import {
-  getAttendanceRecords, deleteAttendanceRecord, seedDummyAttendance,
+  getAttendanceRecords,
+  deleteAttendanceRecord,
+  seedDummyAttendance,
 } from "@/lib/attendance-service";
 import { encodeQrPayload } from "@/lib/qr-payload";
 import {
-  renderQRToCanvas, downloadCanvasAsPNG, getSavedDesign,
+  renderQRToCanvas,
+  downloadCanvasAsPNG,
+  getSavedDesign,
 } from "@/lib/qr-designer";
 import { cn } from "@/lib/utils";
 
@@ -38,8 +57,9 @@ function QrDialog({ event, open, onOpenChange }) {
       qrSecret: event.qrSecret,
       username: "member",
     });
-    renderQRToCanvas(canvasRef.current, payload, design.config, 360)
-      .finally(() => setRendering(false));
+    renderQRToCanvas(canvasRef.current, payload, design.config, 360).finally(
+      () => setRendering(false),
+    );
   }, [open, event]);
 
   const handleDownload = () => {
@@ -68,7 +88,8 @@ function QrDialog({ event, open, onOpenChange }) {
         <div className="border-b border-border px-5 py-4">
           <DialogTitle className="text-base">{event?.title}</DialogTitle>
           <DialogDescription className="text-xs mt-0.5">
-            Display at the event. Token refreshes every 60 seconds automatically.
+            Display at the event. Token refreshes every 60 seconds
+            automatically.
           </DialogDescription>
         </div>
 
@@ -90,14 +111,21 @@ function QrDialog({ event, open, onOpenChange }) {
         <div className="border-t border-border bg-surface px-5 py-3 space-y-2">
           <div className="flex items-center gap-2">
             <p className="text-[11px] text-muted-foreground flex-1">
-              Style: <span className="font-medium text-foreground">{design.name}</span>
+              Style:{" "}
+              <span className="font-medium text-foreground">{design.name}</span>
             </p>
-            <Link href="/admin/qr-designer"
-              className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline">
+            <Link
+              href="/admin/qr-designer"
+              className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+            >
               Change design <ExternalLink className="size-3" />
             </Link>
           </div>
-          <Button className="w-full gap-2" onClick={handleDownload} disabled={rendering}>
+          <Button
+            className="w-full gap-2"
+            onClick={handleDownload}
+            disabled={rendering}
+          >
             <Download className="size-4" /> Download PNG (1024 × 1024)
           </Button>
         </div>
@@ -107,7 +135,14 @@ function QrDialog({ event, open, onOpenChange }) {
 }
 
 /* ─── Event row ─── */
-function EventRow({ event, onShowQr, onRotateSecret, revealed, onToggleReveal, attendeeCount }) {
+function EventRow({
+  event,
+  onShowQr,
+  onRotateSecret,
+  revealed,
+  onToggleReveal,
+  attendeeCount,
+}) {
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3">
       <div className="min-w-0 flex-1">
@@ -116,13 +151,22 @@ function EventRow({ event, onShowQr, onRotateSecret, revealed, onToggleReveal, a
           <span className="inline-flex items-center gap-1">
             <KeyRound className="size-3" />
             <span className="font-mono">
-              {revealed ? event.qrSecret : "•".repeat(Math.min(event.qrSecret?.length ?? 8, 20))}
+              {revealed
+                ? event.qrSecret
+                : "•".repeat(Math.min(event.qrSecret?.length ?? 8, 20))}
             </span>
           </span>
-          <button type="button" onClick={onToggleReveal}
+          <button
+            type="button"
+            onClick={onToggleReveal}
             className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={revealed ? "Hide secret" : "Show secret"}>
-            {revealed ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+            aria-label={revealed ? "Hide secret" : "Show secret"}
+          >
+            {revealed ? (
+              <EyeOff className="size-3" />
+            ) : (
+              <Eye className="size-3" />
+            )}
           </button>
         </div>
       </div>
@@ -130,10 +174,20 @@ function EventRow({ event, onShowQr, onRotateSecret, revealed, onToggleReveal, a
         <Users className="size-3" /> {attendeeCount}
       </Badge>
       <div className="flex items-center gap-1.5 shrink-0">
-        <Button size="sm" variant="outline" className="h-7 gap-1.5 text-xs" onClick={onShowQr}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 gap-1.5 text-xs"
+          onClick={onShowQr}
+        >
           <QrCode className="size-3.5" /> Show & Download QR
         </Button>
-        <Button size="sm" variant="ghost" className="h-7 gap-1.5 text-xs" onClick={onRotateSecret}>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-7 gap-1.5 text-xs"
+          onClick={onRotateSecret}
+        >
           <RefreshCw className="size-3.5" /> Rotate secret
         </Button>
       </div>
@@ -150,6 +204,14 @@ export default function AdminAttendancePage() {
   const [revealed, setRevealed] = useState({});
   const [qrEvent, setQrEvent] = useState(null);
 
+  const router = useRouter();
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("/admin/attendance");
+      if (!result) router.push("/");
+    })();
+  }, []);
+
   const load = async () => {
     setLoading(true);
     await seedDummyAttendance();
@@ -157,14 +219,19 @@ export default function AdminAttendancePage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const events = raw.events ?? [];
-  const countFor = (eventId) => records.filter((r) => r.eventId === eventId).length;
+  const countFor = (eventId) =>
+    records.filter((r) => r.eventId === eventId).length;
 
   const rotateSecret = (eventIndex) => {
     const newSecret = `ccs-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
-    update((draft) => { draft.events[eventIndex].qrSecret = newSecret; });
+    update((draft) => {
+      draft.events[eventIndex].qrSecret = newSecret;
+    });
     toast.success("Secret rotated — existing QR images are now invalid.");
   };
 
@@ -202,7 +269,10 @@ export default function AdminAttendancePage() {
             </Link>
           </Button>
           <Button size="sm" variant="outline" onClick={load} disabled={loading}>
-            <RefreshCw className={cn("size-3.5 mr-1.5", loading && "animate-spin")} /> Refresh
+            <RefreshCw
+              className={cn("size-3.5 mr-1.5", loading && "animate-spin")}
+            />{" "}
+            Refresh
           </Button>
         </div>
       </div>
@@ -211,12 +281,20 @@ export default function AdminAttendancePage() {
       <div className="space-y-3">
         <h2 className="text-sm font-semibold">Event QR codes</h2>
         <p className="text-xs text-muted-foreground">
-          Click "Show & Download QR" to preview and save the styled QR for any event.
-          The QR style comes from your selection in the{" "}
-          <Link href="/admin/qr-designer" className="text-primary hover:underline">QR Designer</Link>.
+          Click "Show & Download QR" to preview and save the styled QR for any
+          event. The QR style comes from your selection in the{" "}
+          <Link
+            href="/admin/qr-designer"
+            className="text-primary hover:underline"
+          >
+            QR Designer
+          </Link>
+          .
         </p>
         {events.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No events found. Add events in the Customize panel.</p>
+          <p className="text-sm text-muted-foreground">
+            No events found. Add events in the Customize panel.
+          </p>
         ) : (
           events.map((event, i) => (
             <EventRow
@@ -224,7 +302,9 @@ export default function AdminAttendancePage() {
               event={event}
               attendeeCount={countFor(event.id)}
               revealed={!!revealed[event.id]}
-              onToggleReveal={() => setRevealed((p) => ({ ...p, [event.id]: !p[event.id] }))}
+              onToggleReveal={() =>
+                setRevealed((p) => ({ ...p, [event.id]: !p[event.id] }))
+              }
               onShowQr={() => setQrEvent(event)}
               onRotateSecret={() => rotateSecret(i)}
             />
@@ -264,16 +344,25 @@ export default function AdminAttendancePage() {
                 <tr className="border-b border-border bg-surface text-xs text-muted-foreground">
                   <th className="px-4 py-3 text-left font-medium">Member</th>
                   <th className="px-4 py-3 text-left font-medium">Event</th>
-                  <th className="hidden px-4 py-3 text-left font-medium sm:table-cell">Token</th>
+                  <th className="hidden px-4 py-3 text-left font-medium sm:table-cell">
+                    Token
+                  </th>
                   <th className="px-4 py-3 text-left font-medium">Time</th>
                   <th className="px-4 py-3 text-right font-medium" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {filteredRecords.map((r) => (
-                  <tr key={r.id} className="hover:bg-accent/30 transition-colors">
-                    <td className="px-4 py-3 text-xs font-medium">{r.username}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground max-w-[140px] truncate">{r.eventName}</td>
+                  <tr
+                    key={r.id}
+                    className="hover:bg-accent/30 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-xs font-medium">
+                      {r.username}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground max-w-[140px] truncate">
+                      {r.eventName}
+                    </td>
                     <td className="hidden px-4 py-3 font-mono text-xs text-muted-foreground sm:table-cell">
                       {r.token}
                     </td>
@@ -299,7 +388,11 @@ export default function AdminAttendancePage() {
       </div>
 
       {/* QR Dialog */}
-      <QrDialog event={qrEvent} open={!!qrEvent} onOpenChange={(o) => !o && setQrEvent(null)} />
+      <QrDialog
+        event={qrEvent}
+        open={!!qrEvent}
+        onOpenChange={(o) => !o && setQrEvent(null)}
+      />
     </div>
   );
 }

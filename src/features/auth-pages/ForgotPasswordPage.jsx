@@ -9,8 +9,14 @@ import { toast } from "sonner";
 import { Mail, ArrowLeft, CheckCircle2, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
+import backendMiddleware from "@/backend-middleware";
+import { useRouter } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
-import { FormField, AuthHeading, AuthButton } from "@/components/auth/FormField";
+import {
+  FormField,
+  AuthHeading,
+  AuthButton,
+} from "@/components/auth/FormField";
 import { useAuth } from "@/context/AuthContext";
 
 const Schema = z.object({
@@ -48,7 +54,9 @@ function SuccessState({ email, onResend, busy }) {
       </p>
 
       <div className="mt-8 rounded-xl border border-border bg-surface p-4 text-left space-y-2">
-        <p className="text-xs font-semibold text-muted-foreground">Didn&apos;t receive it?</p>
+        <p className="text-xs font-semibold text-muted-foreground">
+          Didn&apos;t receive it?
+        </p>
         <ul className="space-y-1 text-xs text-muted-foreground list-disc list-inside">
           <li>Check your spam or junk folder</li>
           <li>Make sure you used your university email</li>
@@ -59,7 +67,10 @@ function SuccessState({ email, onResend, busy }) {
       <div className="mt-6 space-y-3">
         <button
           type="button"
-          onClick={() => { setSeconds(RESEND_SECONDS); onResend(); }}
+          onClick={() => {
+            setSeconds(RESEND_SECONDS);
+            onResend();
+          }}
           disabled={seconds > 0 || busy}
           className="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
         >
@@ -82,6 +93,14 @@ export default function ForgotPasswordPage() {
   const { forgotPassword } = useAuth();
   const [busy, setBusy] = useState(false);
   const [sentTo, setSentTo] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("forgot-password");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const form = useForm({
     resolver: zodResolver(Schema),
@@ -148,7 +167,10 @@ export default function ForgotPasswordPage() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Remember it?{" "}
-              <Link href="/login" className="font-medium text-primary hover:underline">
+              <Link
+                href="/login"
+                className="font-medium text-primary hover:underline"
+              >
                 Sign in
               </Link>
             </p>

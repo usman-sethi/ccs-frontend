@@ -402,7 +402,7 @@ export default function DashboardPage() {
           </div>
           {isAdmin ? (
             <Button asChild variant="outline" size="sm">
-              <Link href="/admin">
+              <Link href="/admin/recruitment">
                 <Shield className="mr-2 size-4" /> Admin panel
               </Link>
             </Button>

@@ -1,7 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import backendMiddleware from "@/backend-middleware";
 import {
   Plus,
   Trash2,
@@ -2023,6 +2025,13 @@ export default function AdminCustomizePage() {
   const { raw, update, reset, exportJson, importJson } = useSiteContent();
   const [tab, setTab] = useState("general");
   const importRef = useRef(null);
+  const router = useRouter();
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("/admin");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const { isAdmin } = useAuth();
 

@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { PageHeader } from "@/components/shared/SectionHeader";
 import { ProjectCard } from "@/components/shared/cards";
+import backendMiddleware from "@/backend-middleware";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Input } from "@/components/ui/input";
 import { useSiteContent } from "@/context/SiteContentContext";
@@ -17,8 +20,17 @@ export default function ProjectsPage() {
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(PROJECTS.map((p) => p.category)))],
-    [PROJECTS]
+    [PROJECTS],
   );
+
+  const router = useRouter()
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("projects");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -27,7 +39,7 @@ export default function ProjectsPage() {
         !s ||
         p.name.toLowerCase().includes(s) ||
         p.description.toLowerCase().includes(s) ||
-        p.tech.some((t) => t.toLowerCase().includes(s))
+        p.tech.some((t) => t.toLowerCase().includes(s)),
     );
   }, [q, cat, PROJECTS]);
 
@@ -60,7 +72,7 @@ export default function ProjectsPage() {
                   "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
                   cat === c
                     ? "border-foreground bg-foreground text-background"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/30"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/30",
                 )}
               >
                 {c}
@@ -71,7 +83,10 @@ export default function ProjectsPage() {
 
         {filtered.length === 0 ? (
           <div className="mt-10">
-            <EmptyState title="No projects match" description="Try clearing filters." />
+            <EmptyState
+              title="No projects match"
+              description="Try clearing filters."
+            />
           </div>
         ) : (
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

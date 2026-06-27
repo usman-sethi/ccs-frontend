@@ -2,11 +2,22 @@
 
 import { PageHeader } from "@/components/shared/SectionHeader";
 import { Badge } from "@/components/ui/badge";
+import backendMiddleware from "@/backend-middleware";
 import { useSiteContent } from "@/context/SiteContentContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AchievementsPage() {
   const { content } = useSiteContent();
   const ACHIEVEMENTS = content.achievements;
+
+  const router = useRouter();
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("achievements");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   return (
     <>
@@ -24,12 +35,19 @@ export default function AchievementsPage() {
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-semibold">{a.year}</span>
-                <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] uppercase tracking-wider"
+                >
                   {a.kind}
                 </Badge>
               </div>
-              <h3 className="mt-1.5 text-base font-semibold tracking-tight">{a.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{a.detail}</p>
+              <h3 className="mt-1.5 text-base font-semibold tracking-tight">
+                {a.title}
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                {a.detail}
+              </p>
             </li>
           ))}
         </ol>

@@ -1,9 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { PageHeader } from "@/components/shared/SectionHeader";
+import backendMiddleware from "@/backend-middleware";
 import { GalleryTile } from "@/components/shared/cards";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useSiteContent } from "@/context/SiteContentContext";
 import { cn } from "@/lib/utils";
 
@@ -16,8 +23,17 @@ export default function GalleryPage() {
 
   const items = useMemo(
     () => (cat === "All" ? GALLERY : GALLERY.filter((g) => g.category === cat)),
-    [cat, GALLERY]
+    [cat, GALLERY],
   );
+
+  const router = useRouter()
+
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("gallery");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   return (
     <>
@@ -37,7 +53,7 @@ export default function GalleryPage() {
                 "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
                 cat === c
                   ? "border-foreground bg-foreground text-background"
-                  : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/30"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/30",
               )}
             >
               {c}
@@ -76,8 +92,12 @@ export default function GalleryPage() {
                 />
               )}
               <div className="p-5">
-                <DialogTitle className="text-sm font-semibold">{active.caption}</DialogTitle>
-                <DialogDescription className="mt-1 text-xs">{active.category}</DialogDescription>
+                <DialogTitle className="text-sm font-semibold">
+                  {active.caption}
+                </DialogTitle>
+                <DialogDescription className="mt-1 text-xs">
+                  {active.category}
+                </DialogDescription>
               </div>
             </>
           )}
