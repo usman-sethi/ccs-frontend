@@ -14,9 +14,12 @@ const verifyToken = async (token) => {
   }
 };
 
-export async function proxy(req) {
+export async function middleware(req) {
   const token = req.cookies.get("authToken")?.value;
   const { pathname } = req.nextUrl;
+
+  console.log(token)
+  console.log(pathname)
 
   const restrictedPaths = [
     "/projects",
