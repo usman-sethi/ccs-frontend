@@ -284,7 +284,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     (async () => {
-      const result = await backendMiddleware("/dashbaord");
+      const result = await backendMiddleware("/dashboard");
       if (!result) router.push("/");
     })();
   }, []);
