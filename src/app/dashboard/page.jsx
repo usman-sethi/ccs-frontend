@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import backendMiddleware from "@/backend-middleware";
 import { toast } from "sonner";
 import {
   Shield,
@@ -276,14 +277,17 @@ function CardSection({ user }) {
 ═══════════════════════════════════════ */
 export default function DashboardPage() {
   const { user, isAdmin, isDeveloper, updateProfile } = useAuth();
-  const router = useRouter()
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [avatarDialog, setAvatarDialog] = useState(false);
   const [avatar, setAvatar] = useState(user?.avatarUrl || "");
 
   useEffect(() => {
-    if (!user) router.push("/")
-  })
+    (async () => {
+      const result = await backendMiddleware("/dashbaord");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   // Real certificates from the certificate system
   const [certs, setCerts] = useState([]);
