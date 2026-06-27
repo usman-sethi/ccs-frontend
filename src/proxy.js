@@ -3,10 +3,14 @@ import { jwtVerify } from "jose";
 
 const verifyToken = async (token) => {
   try {
+    console.log("token: ", token)
     if (!token) return null;
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    console.log("secret: ", secret)
     const { payload } = await jwtVerify(token, secret);
+
+    console.log("payload", payload)
 
     return payload;
   } catch (err) {
