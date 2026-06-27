@@ -20,7 +20,7 @@ const verifyToken = async (token) => {
 };
 
 export async function proxy(req) {
-  console.log("cookies: ", req.cookies)
+  console.log("cookies: ", req.cookies.getAll())
   const token = req.cookies.get("authToken")?.value;
   const { pathname } = req.nextUrl;
 
