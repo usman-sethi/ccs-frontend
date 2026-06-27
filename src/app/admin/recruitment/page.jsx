@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import backendMiddleware from "@/backend-middleware";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   ClipboardList,
@@ -43,6 +45,14 @@ export default function AdminRecruitmentPage() {
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expanded, setExpanded] = useState(null);
+
+  const router = useRouter();
+  useEffect(() => {
+    (async () => {
+      const result = await backendMiddleware("/admin/recruitment");
+      if (!result) router.push("/");
+    })();
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);

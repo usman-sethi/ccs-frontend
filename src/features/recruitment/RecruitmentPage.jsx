@@ -44,7 +44,7 @@ export default function RecruitmentPage() {
   const CLUBS = content.clubs;
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
-  const { setIsKnown, setIsRecruited } = useAuth();
+  const { setIsKnown } = useAuth();
 
   // if recruited
   useEffect(() => {
