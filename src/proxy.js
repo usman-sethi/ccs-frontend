@@ -1,27 +1,26 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 
 const verifyToken = async (token) => {
   try {
-    console.log("token: ", token)
     if (!token) return null;
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    console.log("secret: ", secret)
     const { payload } = await jwtVerify(token, secret);
 
-    console.log("payload", payload)
 
     return payload;
   } catch (err) {
-    console.error("JWT Verify Error:", err);
+    console.error(err)
     return null;
   }
 };
 
 export async function proxy(req) {
-  console.log("Cookie header:", req.headers.get("cookie"));
-console.log("All cookies:", req.cookies.getAll());
+  const cookiesStore = await cookies()
+  const all = cookiesStore.getAll()
+  console.log(all)
   const token = req.cookies.get("authToken")?.value;
   const { pathname } = req.nextUrl;
 
