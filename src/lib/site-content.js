@@ -396,7 +396,7 @@ export const DEFAULT_SITE_CONTENT = {
       position: "Female Study Circle Head",
       department: "Cyber Security",
       linkedin: "#",
-      initials: "HA",
+      initials: "FZ",
     },
 
     // Club Leads
