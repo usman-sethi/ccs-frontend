@@ -18,9 +18,6 @@ export async function proxy(req) {
   const token = req.cookies.get("authToken")?.value;
   const { pathname } = req.nextUrl;
 
-  console.log(token)
-  console.log(pathname)
-
   const restrictedPaths = [
     "/projects",
     "/gallery",
