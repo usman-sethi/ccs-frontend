@@ -139,6 +139,7 @@ export default function TwoFAPage() {
       /* TODO: call your Express backend /api/auth/verify-2fa */
       const data = await twoFactorAuth(email, code);
       setUser(data.user);
+      sessionStorage.removeItem("otpSent")
       sessionStorage.removeItem("email");
       isLoggedInRef.current = true;
       localStorage.setItem("loggedIn", JSON.stringify(true));

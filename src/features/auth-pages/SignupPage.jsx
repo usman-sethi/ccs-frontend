@@ -60,6 +60,10 @@ export default function SignupPage() {
       const result = await backendMiddleware("signup");
       if (!result) router.push("/");
     })();
+
+    const isOTPSent =
+      JSON.parse(sessionStorage.getItem("otpSent")) || false;
+    if (isOTPSent) router.push("/2fa");
   }, []);
 
   const password = form.watch("password");
@@ -68,6 +72,7 @@ export default function SignupPage() {
     setBusy(true);
     try {
       await signUp(values.email, values.password);
+      sessionStorage.setItem("otpSent", JSON.stringify(true));
       sessionStorage.setItem("email", JSON.stringify(values.email));
       toast.success("Account created!", {
         description:

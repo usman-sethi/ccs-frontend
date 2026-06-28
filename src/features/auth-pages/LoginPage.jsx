@@ -37,6 +37,9 @@ export default function LoginPage() {
       const result = await backendMiddleware("login");
       if (!result) router.push("/");
     })();
+
+    const isOTPSent = JSON.parse(sessionStorage.getItem("otpSent")) || false;
+    if (isOTPSent) router.push("/2fa");
   }, []);
 
   const form = useForm({
@@ -48,6 +51,7 @@ export default function LoginPage() {
     setBusy(true);
     try {
       await signIn(values.email, values.password);
+      sessionStorage.setItem("otpSent", JSON.stringify(true));
       sessionStorage.setItem("email", JSON.stringify(values.email));
       toast.success("Login successful!", {
         description:
