@@ -86,7 +86,6 @@ export default function HomePage() {
             sizes="100%"
           />
           <Image
-            priority
             src={HERO_IMG_HIGH}
             loading="eager"
             className={`md:object-cover ${!loadedRef.current && "hidden"} object-contain md:object-[center_79%]`}
@@ -94,7 +93,6 @@ export default function HomePage() {
             alt=""
             sizes="100%"
             onLoad={() => {
-              console.log("hero image loaded");
               loadedRef.current = true;
             }}
           />
@@ -103,7 +101,7 @@ export default function HomePage() {
         {/* Always-dark overlay — never shows the page bg colour through in light mode */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-b md:bg-linear-to-t md:from-[rgba(0,0,0,0.48)] from-[rgba(0,0,0,0.88)] to-[rgba(0,0,0,0)] from-10% via-100% md:via-20%"
+          className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-b md:bg-linear-to-t md:from-[rgba(0,0,0,0.48)] from-[rgba(0,0,0,0.88)] to-[rgba(0,0,0,0)] from-5% via-100% md:via-20%"
         />
 
         {/* Subtle colour tint from primary */}
