@@ -6,7 +6,13 @@ import { PageHeader } from "@/components/shared/SectionHeader";
 import { LeaderCard } from "@/components/shared/cards";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSiteContent } from "@/context/SiteContentContext";
 
 export default function LeadershipPage() {
@@ -17,7 +23,7 @@ export default function LeadershipPage() {
 
   const positions = useMemo(
     () => Array.from(new Set(LEADERS.map((l) => l.position))),
-    [LEADERS]
+    [LEADERS],
   );
 
   const filtered = useMemo(() => {
@@ -59,7 +65,9 @@ export default function LeadershipPage() {
             <SelectContent>
               <SelectItem value="all">All positions</SelectItem>
               {positions.map((p) => (
-                <SelectItem key={p} value={p}>{p}</SelectItem>
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

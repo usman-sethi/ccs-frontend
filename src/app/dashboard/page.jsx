@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import backendMiddleware from "@/backend-middleware";
 import { toast } from "sonner";
+import { useSiteContent } from "@/context/SiteContentContext";
 import {
   Shield,
   Download,
@@ -63,6 +64,7 @@ const Schema = z.object({
   bio: z.string().max(300).optional(),
   linkedin: z.string().url().or(z.literal("")).optional(),
   github: z.string().url().or(z.literal("")).optional(),
+  position: z.string().optional(),
 });
 
 const YEARS = ["1st year", "2nd year", "3rd year", "4th year", "Alumni"];
@@ -81,7 +83,7 @@ function CertCard({ cert, template, onView, onDownload, downloading }) {
             className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/5">
             <Award className="size-6 text-primary/40" />
           </div>
         )}
@@ -234,7 +236,7 @@ function CardSection({ user }) {
       {cardData.status === "none" ? (
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-4 text-center space-y-3">
           {/* Ghost card preview */}
-          <div className="mx-auto max-w-[260px] rounded-xl border-2 border-dashed border-border/50 bg-muted/30 aspect-[1.6] flex items-center justify-center">
+          <div className="mx-auto max-w-65 rounded-xl border-2 border-dashed border-border/50 bg-muted/30 aspect-[1.6] flex items-center justify-center">
             <div className="text-center">
               <CreditCard className="size-8 mx-auto text-muted-foreground/40" />
               <p className="text-[10px] text-muted-foreground/50 mt-1">
@@ -281,13 +283,20 @@ export default function DashboardPage() {
   const [busy, setBusy] = useState(false);
   const [avatarDialog, setAvatarDialog] = useState(false);
   const [avatar, setAvatar] = useState(user?.avatarUrl || "");
+  const { content } = useSiteContent();
+  const LEADERS = content.leaders;
+
+  const positions = useMemo(
+    () => Array.from(new Set(LEADERS.map((l) => l.position))),
+    [LEADERS],
+  );
 
   useEffect(() => {
     (async () => {
       const result = await backendMiddleware("/dashboard");
       if (!result) {
-        router.push("/")
-      };
+        router.push("/");
+      }
     })();
   }, []);
 
@@ -346,6 +355,7 @@ export default function DashboardPage() {
       bio: user?.bio || "",
       linkedin: user?.linkedin || "",
       github: user?.github || "",
+      position: user?.position || "",
     },
   });
 
@@ -358,6 +368,7 @@ export default function DashboardPage() {
         bio: user.bio || "",
         linkedin: user.linkedin || "",
         github: user.github || "",
+        position: user?.position || "",
       });
       setAvatar(user.avatarUrl || "");
     }
@@ -453,14 +464,14 @@ export default function DashboardPage() {
                   </span>
                 ) : null}
               </div>
-              {/* <Button
+              <Button
                 size="sm"
                 variant="outline"
                 className="w-full"
                 onClick={() => setAvatarDialog(true)}
               >
                 Change photo
-              </Button> */}
+              </Button>
             </div>
 
             <Separator />
@@ -619,6 +630,26 @@ export default function DashboardPage() {
                   {...form.register("github")}
                 />
               </Field>
+              <Field
+                label="Position"
+                error={form.formState.errors.year?.message}
+              >
+                <Select
+                  value={form.watch("position")}
+                  onValueChange={(v) => form.setValue("position", v)}
+                >
+                  <SelectTrigger aria-label="Position">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {positions.map((y) => (
+                      <SelectItem key={y} value={y}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
             </div>
             <Field label="Bio" error={form.formState.errors.bio?.message}>
               <Textarea
@@ -658,7 +689,7 @@ export default function DashboardPage() {
         aspect={1}
         maxEdge={400}
         title="Change profile photo"
-        onConfirm={(url) => setAvatar(url)}
+        onConfirm={(img) => console.log(img)}
       />
     </>
   );
