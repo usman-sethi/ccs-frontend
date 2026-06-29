@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import backendMiddleware from "@/backend-middleware";
 import { toast } from "sonner";
+import { useSiteContent } from "@/context/SiteContentContext";
 import {
   Shield,
   Download,
@@ -20,6 +21,7 @@ import {
   ChevronUp,
   QrCode,
   CodeXml,
+  Loader,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -63,6 +65,7 @@ const Schema = z.object({
   bio: z.string().max(300).optional(),
   linkedin: z.string().url().or(z.literal("")).optional(),
   github: z.string().url().or(z.literal("")).optional(),
+  position: z.string().optional(),
 });
 
 const YEARS = ["1st year", "2nd year", "3rd year", "4th year", "Alumni"];
@@ -81,7 +84,7 @@ function CertCard({ cert, template, onView, onDownload, downloading }) {
             className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/5">
             <Award className="size-6 text-primary/40" />
           </div>
         )}
@@ -234,7 +237,7 @@ function CardSection({ user }) {
       {cardData.status === "none" ? (
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-4 text-center space-y-3">
           {/* Ghost card preview */}
-          <div className="mx-auto max-w-[260px] rounded-xl border-2 border-dashed border-border/50 bg-muted/30 aspect-[1.6] flex items-center justify-center">
+          <div className="mx-auto max-w-65 rounded-xl border-2 border-dashed border-border/50 bg-muted/30 aspect-[1.6] flex items-center justify-center">
             <div className="text-center">
               <CreditCard className="size-8 mx-auto text-muted-foreground/40" />
               <p className="text-[10px] text-muted-foreground/50 mt-1">
@@ -280,14 +283,22 @@ export default function DashboardPage() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [avatarDialog, setAvatarDialog] = useState(false);
-  const [avatar, setAvatar] = useState(user?.avatarUrl || "");
+  const [avatarObj, setAvatarObj] = useState(user?.avatarObj || null);
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || "");
+  const { content } = useSiteContent();
+  const LEADERS = content.leaders;
+
+  const positions = useMemo(
+    () => Array.from(new Set(LEADERS.map((l) => l.position))),
+    [LEADERS],
+  );
 
   useEffect(() => {
     (async () => {
       const result = await backendMiddleware("/dashboard");
       if (!result) {
-        router.push("/")
-      };
+        router.push("/");
+      }
     })();
   }, []);
 
@@ -346,6 +357,7 @@ export default function DashboardPage() {
       bio: user?.bio || "",
       linkedin: user?.linkedin || "",
       github: user?.github || "",
+      position: user?.position || "",
     },
   });
 
@@ -358,8 +370,10 @@ export default function DashboardPage() {
         bio: user.bio || "",
         linkedin: user.linkedin || "",
         github: user.github || "",
+        position: user?.position || "",
       });
-      setAvatar(user.avatarUrl || "");
+      setAvatarObj(null);
+      setAvatarPreview(user.profileImage.secure_url || "");
     }
   }, [user]);
 
@@ -368,6 +382,11 @@ export default function DashboardPage() {
     if (!user._id) return;
 
     setBusy(true);
+    if (avatarObj)
+      values = {
+        ...values,
+        ...{ avatar: avatarObj },
+      };
 
     try {
       await updateProfile({ ...values, id: user._id });
@@ -431,7 +450,7 @@ export default function DashboardPage() {
             {/* Avatar + identity card */}
             <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6">
               <Avatar className="size-24 ring-2 ring-border">
-                <AvatarImage src={avatar} alt="" />
+                <AvatarImage src={avatarPreview} alt="" />
                 <AvatarFallback className="text-2xl font-semibold">
                   {initials}
                 </AvatarFallback>
@@ -453,14 +472,15 @@ export default function DashboardPage() {
                   </span>
                 ) : null}
               </div>
-              {/* <Button
+              <Button
                 size="sm"
                 variant="outline"
                 className="w-full"
+                disabled={busy}
                 onClick={() => setAvatarDialog(true)}
               >
                 Change photo
-              </Button> */}
+              </Button>
             </div>
 
             <Separator />
@@ -562,6 +582,7 @@ export default function DashboardPage() {
                 <Input
                   placeholder={user?.fullName || "Your Name"}
                   {...form.register("fullName")}
+                  disabled={busy}
                 />
               </Field>
               <Field
@@ -570,6 +591,7 @@ export default function DashboardPage() {
               >
                 <Select
                   value={form.watch("department")}
+                  disabled={busy}
                   onValueChange={(v) => form.setValue("department", v)}
                 >
                   <SelectTrigger aria-label="Department">
@@ -588,6 +610,7 @@ export default function DashboardPage() {
                 <Select
                   value={form.watch("year")}
                   onValueChange={(v) => form.setValue("year", v)}
+                  disabled={busy}
                 >
                   <SelectTrigger aria-label="Year">
                     <SelectValue placeholder="Select" />
@@ -608,6 +631,7 @@ export default function DashboardPage() {
                 <Input
                   placeholder="https://linkedin.com/in/…"
                   {...form.register("linkedin")}
+                  disabled={busy}
                 />
               </Field>
               <Field
@@ -617,7 +641,29 @@ export default function DashboardPage() {
                 <Input
                   placeholder="https://github.com/…"
                   {...form.register("github")}
+                  disabled={busy}
                 />
+              </Field>
+              <Field
+                label="Position"
+                error={form.formState.errors.year?.message}
+              >
+                <Select
+                  value={form.watch("position")}
+                  disabled={busy}
+                  onValueChange={(v) => form.setValue("position", v)}
+                >
+                  <SelectTrigger aria-label="Position">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {positions.map((y) => (
+                      <SelectItem key={y} value={y}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
             </div>
             <Field label="Bio" error={form.formState.errors.bio?.message}>
@@ -625,6 +671,7 @@ export default function DashboardPage() {
                 rows={3}
                 placeholder="A short intro…"
                 {...form.register("bio")}
+                disabled={busy}
               />
               <p className="text-right text-[11px] text-muted-foreground">
                 {form.watch("bio")?.length ?? 0} / 300
@@ -632,7 +679,13 @@ export default function DashboardPage() {
             </Field>
             <div className="flex justify-end border-t border-border pt-4">
               <Button type="submit" disabled={busy}>
-                {busy ? "Saving…" : "Save changes"}
+                {busy ? (
+                  <>
+                    <Loader className="animate-spin" /> Saving…
+                  </>
+                ) : (
+                  "Save changes"
+                )}
               </Button>
             </div>
           </form>
@@ -658,7 +711,11 @@ export default function DashboardPage() {
         aspect={1}
         maxEdge={400}
         title="Change profile photo"
-        onConfirm={(url) => setAvatar(url)}
+        onConfirm={(file) => {
+          setAvatarObj(file);
+          setAvatarPreview(URL.createObjectURL(file));
+          toast.info("Now save changes below")
+        }}
       />
     </>
   );

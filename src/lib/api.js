@@ -10,21 +10,30 @@ const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
 async function request(path, options = {}) {
+  const isFormData = options.body instanceof FormData;
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...options.headers },
     credentials: "include",
     ...options,
+    headers: {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...options.headers,
+    },
   });
+
   if (!res.ok) {
     let msg = `Request failed (${res.status})`;
+
     try {
       const body = await res.json();
       msg = body.message || body.error || msg;
     } catch {
       /* ignore */
     }
+
     throw new Error(msg);
   }
+
   return res.json();
 }
 
@@ -115,6 +124,25 @@ export async function getProfile() {
  * Expected body: { displayName, department, year, bio, linkedin, github }
  */
 export async function updateProfile(data) {
+  const hasFile = Object.values(data).some(
+    (value) => value instanceof File || value instanceof Blob,
+  );
+
+  if (hasFile) {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
+    });
+
+    return request(`/users/${data.id}`, {
+      method: "PATCH",
+      body: formData,
+    });
+  }
+
   return request(`/users/${data.id}`, {
     method: "PATCH",
     body: JSON.stringify(data),

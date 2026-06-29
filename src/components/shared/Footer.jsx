@@ -7,6 +7,18 @@ import { useSiteContent } from "@/context/SiteContentContext";
 import Image from "next/image";
 import CCS_LOGO from "@/public/ccs-logo.webp";
 
+const tiktokSVG = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.77h-3.13v12.7a2.9 2.9 0 1 1-2.9-2.9c.24 0 .47.03.69.08V8.63a6.03 6.03 0 0 0-.69-.04A6.04 6.04 0 1 0 15.82 14V7.56a7.92 7.92 0 0 0 4.64 1.49V6.69h-.87z" />
+  </svg>
+);
+
 export function Footer() {
   const { isKnown } = useAuth();
 
@@ -43,14 +55,14 @@ export function Footer() {
                   label: "LinkedIn",
                 },
                 {
-                  href: SOCIETY.social.twitter,
-                  icon: Twitter,
-                  label: "Twitter",
-                },
-                {
                   href: SOCIETY.social.instagram,
                   icon: Instagram,
                   label: "Instagram",
+                },
+                {
+                  href: SOCIETY.social.tiktok,
+                  icon: tiktokSVG,
+                  label: "Tiktok",
                 },
               ].map((s) => (
                 <a
