@@ -81,7 +81,7 @@ export function UserMenu() {
           aria-label="Account menu"
         >
           <Avatar className="size-8">
-            <AvatarImage src={user?.avatarUrl} alt="" />
+            <AvatarImage src={user?.profileImage?.secure_url} alt="" />
             <AvatarFallback className="bg-white/20 text-xs font-semibold text-white">
               {initials}
             </AvatarFallback>
