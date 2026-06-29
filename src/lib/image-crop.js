@@ -18,23 +18,55 @@ export async function fileToDataUrl(file) {
 }
 
 /**
- * Crop a source image (data URL or remote) to the given pixel area and
- * downscale so the long edge is at most `maxEdge`. Returns a JPEG data URL.
+ * Crop image and return a File object instead of Base64.
  */
-export async function cropToDataUrl(src, area, opts = {}) {
+export async function cropToFile(src, area, opts = {}) {
   const maxEdge = opts.maxEdge ?? 1280;
   const mime = opts.mime ?? "image/jpeg";
-  const quality = opts.quality ?? 0.85;
+  const quality = opts.quality ?? 0.9;
 
   const img = await loadImage(src);
-  const scale = Math.min(1, maxEdge / Math.max(area.width, area.height));
-  const w = Math.round(area.width * scale);
-  const h = Math.round(area.height * scale);
+
+  const scale = Math.min(
+    1,
+    maxEdge / Math.max(area.width, area.height)
+  );
+
+  const width = Math.round(area.width * scale);
+  const height = Math.round(area.height * scale);
+
   const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = width;
+  canvas.height = height;
+
   const ctx = canvas.getContext("2d");
+
   if (!ctx) throw new Error("Canvas 2D not available");
-  ctx.drawImage(img, area.x, area.y, area.width, area.height, 0, 0, w, h);
-  return canvas.toDataURL(mime, quality);
+
+  ctx.drawImage(
+    img,
+    area.x,
+    area.y,
+    area.width,
+    area.height,
+    0,
+    0,
+    width,
+    height
+  );
+
+  const blob = await new Promise((resolve) =>
+    canvas.toBlob(resolve, mime, quality)
+  );
+
+  if (!blob) throw new Error("Unable to create image");
+
+  return new File(
+    [blob],
+    `image-${Date.now()}.jpg`,
+    {
+      type: mime,
+      lastModified: Date.now(),
+    }
+  );
 }

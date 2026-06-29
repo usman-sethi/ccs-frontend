@@ -21,6 +21,7 @@ import {
   ChevronUp,
   QrCode,
   CodeXml,
+  Loader,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -282,7 +283,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [avatarDialog, setAvatarDialog] = useState(false);
-  const [avatar, setAvatar] = useState(user?.avatarUrl || "");
+  const [avatarObj, setAvatarObj] = useState(user?.avatarObj || null);
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || "");
   const { content } = useSiteContent();
   const LEADERS = content.leaders;
 
@@ -370,7 +372,8 @@ export default function DashboardPage() {
         github: user.github || "",
         position: user?.position || "",
       });
-      setAvatar(user.avatarUrl || "");
+      setAvatarObj(null);
+      setAvatarPreview(user.profileImage.secure_url || "");
     }
   }, [user]);
 
@@ -379,6 +382,11 @@ export default function DashboardPage() {
     if (!user._id) return;
 
     setBusy(true);
+    if (avatarObj)
+      values = {
+        ...values,
+        ...{ avatar: avatarObj },
+      };
 
     try {
       await updateProfile({ ...values, id: user._id });
@@ -442,7 +450,7 @@ export default function DashboardPage() {
             {/* Avatar + identity card */}
             <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6">
               <Avatar className="size-24 ring-2 ring-border">
-                <AvatarImage src={avatar} alt="" />
+                <AvatarImage src={avatarPreview} alt="" />
                 <AvatarFallback className="text-2xl font-semibold">
                   {initials}
                 </AvatarFallback>
@@ -468,6 +476,7 @@ export default function DashboardPage() {
                 size="sm"
                 variant="outline"
                 className="w-full"
+                disabled={busy}
                 onClick={() => setAvatarDialog(true)}
               >
                 Change photo
@@ -573,6 +582,7 @@ export default function DashboardPage() {
                 <Input
                   placeholder={user?.fullName || "Your Name"}
                   {...form.register("fullName")}
+                  disabled={busy}
                 />
               </Field>
               <Field
@@ -581,6 +591,7 @@ export default function DashboardPage() {
               >
                 <Select
                   value={form.watch("department")}
+                  disabled={busy}
                   onValueChange={(v) => form.setValue("department", v)}
                 >
                   <SelectTrigger aria-label="Department">
@@ -599,6 +610,7 @@ export default function DashboardPage() {
                 <Select
                   value={form.watch("year")}
                   onValueChange={(v) => form.setValue("year", v)}
+                  disabled={busy}
                 >
                   <SelectTrigger aria-label="Year">
                     <SelectValue placeholder="Select" />
@@ -619,6 +631,7 @@ export default function DashboardPage() {
                 <Input
                   placeholder="https://linkedin.com/in/…"
                   {...form.register("linkedin")}
+                  disabled={busy}
                 />
               </Field>
               <Field
@@ -628,6 +641,7 @@ export default function DashboardPage() {
                 <Input
                   placeholder="https://github.com/…"
                   {...form.register("github")}
+                  disabled={busy}
                 />
               </Field>
               <Field
@@ -636,6 +650,7 @@ export default function DashboardPage() {
               >
                 <Select
                   value={form.watch("position")}
+                  disabled={busy}
                   onValueChange={(v) => form.setValue("position", v)}
                 >
                   <SelectTrigger aria-label="Position">
@@ -656,6 +671,7 @@ export default function DashboardPage() {
                 rows={3}
                 placeholder="A short intro…"
                 {...form.register("bio")}
+                disabled={busy}
               />
               <p className="text-right text-[11px] text-muted-foreground">
                 {form.watch("bio")?.length ?? 0} / 300
@@ -663,7 +679,13 @@ export default function DashboardPage() {
             </Field>
             <div className="flex justify-end border-t border-border pt-4">
               <Button type="submit" disabled={busy}>
-                {busy ? "Saving…" : "Save changes"}
+                {busy ? (
+                  <>
+                    <Loader className="animate-spin" /> Saving…
+                  </>
+                ) : (
+                  "Save changes"
+                )}
               </Button>
             </div>
           </form>
@@ -689,7 +711,11 @@ export default function DashboardPage() {
         aspect={1}
         maxEdge={400}
         title="Change profile photo"
-        onConfirm={(img) => console.log(img)}
+        onConfirm={(file) => {
+          setAvatarObj(file);
+          setAvatarPreview(URL.createObjectURL(file));
+          toast.info("Now save changes below")
+        }}
       />
     </>
   );
