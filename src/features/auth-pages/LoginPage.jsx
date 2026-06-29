@@ -33,10 +33,10 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      const result = await backendMiddleware("login");
-      if (!result) router.push("/");
-    })();
+    // (async () => {
+    //   const result = await backendMiddleware("login");
+    //   if (!result && !user) router.push("/");
+    // })();
 
     const isOTPSent = JSON.parse(sessionStorage.getItem("otpSent")) || false;
     if (isOTPSent) router.push("/2fa");
