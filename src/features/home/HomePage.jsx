@@ -95,7 +95,6 @@ export default function HomePage() {
             alt=""
             onLoad={() => {
               setHeroBGLoaded(true);
-              alert("done")
             }}
           />
         </div>
