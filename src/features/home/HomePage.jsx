@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/shared/SectionHeader";
@@ -17,6 +18,8 @@ import {
 import { useSiteContent } from "@/context/SiteContentContext";
 import Image from "next/image";
 import HERO_IMG from "@/public/hero-bg-img.webp";
+import HERO_IMG_LOW from "@/public/hero-bg-low.webp";
+import HERO_IMG_HIGH from "@/public/hero-bg-high.webp";
 import { useEffect } from "react";
 
 const fadeUp = {
@@ -30,6 +33,7 @@ const fadeUp = {
 
 export default function HomePage() {
   const { isLoggedInRef, isAdmin, isDeveloper, isKnown, user } = useAuth();
+  const [heroBGLoaded, setHeroBGLoaded] = useState(false);
 
   const { content } = useSiteContent();
   const {
@@ -68,43 +72,42 @@ export default function HomePage() {
   return (
     <>
       {/* ──────────── HERO ──────────── */}
-      <section className="relative isolate overflow-hidden min-h-[86vh] flex flex-col justify-center">
+      <section className="relative isolate overflow-hidden min-h-[75vh] md:min-h-[86vh] flex flex-col md:justify-center">
         {/* Background image */}
-        {hero.bgImage && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10"
-          >
-            <Image
-              priority
-              src={HERO_IMG}
-              className="w-full h-full object-cover"
-              alt=""
-            />
-          </div>
-        )}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <Image
+            priority
+            loading="eager"
+            src={HERO_IMG_LOW}
+            className={`md:object-cover ${heroBGLoaded && "hidden"} object-contain md:object-[center_79%]`}
+            fill
+            alt=""
+            sizes="100%"
+          />
+        </div>
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <Image
+            src={HERO_IMG_HIGH}
+            className={`md:object-cover  ${!heroBGLoaded && "hidden"} object-contain md:object-[center_79%]`}
+            fill
+            loading="lazy"
+            sizes="100%"
+            alt=""
+            onLoad={() => {
+              setHeroBGLoaded(true);
+              alert("done")
+            }}
+          />
+        </div>
 
         {/* Always-dark overlay — never shows the page bg colour through in light mode */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.50) 45%, rgba(0,0,0,0.30) 75%, rgba(0,0,0,0.55) 100%)",
-          }}
+          className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-b md:bg-linear-to-t from-[rgba(0,0,0,0.48)] to-[rgba(0,0,0,0)] from-0% via-100% md:via-20%"
         />
 
         {/* Subtle colour tint from primary */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-20"
-          style={{
-            background:
-              "radial-gradient(ellipse 70% 50% at 50% 0%, var(--color-primary), transparent)",
-          }}
-        />
-
-        <div className="container-page mt-40 py-20 md:py-28 lg:py-32">
+        <div className="container-page md:mt-40 md:py-28 lg:py-32">
           <motion.div
             initial="hidden"
             animate="show"
@@ -121,17 +124,17 @@ export default function HomePage() {
             </span> */}
 
             {/* Heading — always white on the dark-overlay image */}
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
+            <h1 className="mt-6 text-3xl font-bold md:font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
               {hero.title}{" "}
               {/* <span style={{ color: "var(--color-primary)" }}> */}
               <span className="text-green-500">{hero.accent}</span>.
             </h1>
 
-            <p className="mx-auto mt-5 max-w-xl text-base text-white/70 md:text-lg leading-relaxed">
+            <p className="mx-auto mt-1 md:mt-5 max-w-xl text-base text-white/70 md:text-lg leading-relaxed">
               {content.society.tagline}
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-4 md:mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button
                 asChild
                 size="lg"
@@ -145,7 +148,7 @@ export default function HomePage() {
               </Button>
               <Link
                 href={hero.ctaSecondary.to}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-white/40 bg-white/10 px-8 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+                className="inline-flex h-10 not-md:hidden items-center justify-center rounded-md border border-white/40 bg-white/10 px-8 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
               >
                 {hero.ctaSecondary.label}
               </Link>

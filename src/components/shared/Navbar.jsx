@@ -72,7 +72,7 @@ export function Navbar() {
           <span className="flex size-9 md:size-12 p-1 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold tracking-tight text-white">
             <Image src={CCS_LOGO} alt="logo" />
           </span>
-          <span className="text-sm font-semibold tracking-tight text-white inline">
+          <span className="text-sm font-semibold tracking-tight text-white hidden md:inline">
             {SOCIETY.fullName}
           </span>
         </Link>
