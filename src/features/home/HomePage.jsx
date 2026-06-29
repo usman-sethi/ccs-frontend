@@ -93,10 +93,7 @@ export default function HomePage() {
             loading="eager"
             sizes="100%"
             alt=""
-            // onLoad={() => {
-            //   setHeroBGLoaded(true);
-            //   console.log("high uplaoded")
-            // }}
+            onLoad={() => console.log("done")}
           />
         </div>
 
