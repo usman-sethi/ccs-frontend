@@ -171,13 +171,13 @@ export default function HomePage() {
 
       {/* ──────────── CLUBS ──────────── */}
       <section className="container-page py-20 md:py-24">
-        <div className="flex items-end justify-between gap-6">
+        <div className="flex not-md:flex-col items-end justify-between gap-6">
           <SectionHeader
             eyebrow="Clubs & teams"
             title="Ten communities, one society"
             description="Our clubs are designed to foster curiosity, develop foundational knowledge, and prepare members for exciting opportunities in the future."
           />
-          <Button asChild variant="ghost" className="hidden md:inline-flex">
+          <Button asChild variant="ghost">
             <Link href="/clubs">
               All clubs <ArrowRight className="ml-1 size-4" />
             </Link>
@@ -204,13 +204,13 @@ export default function HomePage() {
       {/* ──────────── EVENTS ──────────── */}
       <section className="border-y border-border bg-surface">
         <div className="container-page py-20 md:py-24">
-          <div className="flex items-end justify-between gap-6">
+          <div className="flex not-md:flex-col items-end justify-between gap-6">
             <SectionHeader
               eyebrow="What's next"
               title="Upcoming events"
               description="Hackathons, workshops, and talks open to all CCS members."
             />
-            <Button asChild variant="ghost" className="hidden md:inline-flex">
+            <Button asChild variant="ghost">
               <Link href="/events">
                 All events <ArrowRight className="ml-1 size-4" />
               </Link>
