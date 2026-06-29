@@ -373,7 +373,7 @@ export default function DashboardPage() {
         position: user?.position || "",
       });
       setAvatarObj(null);
-      setAvatarPreview(user.profileImage.secure_url || "");
+      setAvatarPreview(user?.profileImage?.secure_url || "");
     }
   }, [user]);
 
