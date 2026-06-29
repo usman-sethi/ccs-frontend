@@ -155,12 +155,12 @@ export default function TwoFAPage() {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      const result = await backendMiddleware("2fa");
-      if (!result) router.push("/");
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const result = await backendMiddleware("2fa");
+  //     if (!result) router.push("/");
+  //   })();
+  // }, []);
 
   const handleResend = async () => {
     setResendSecs(RESEND_SECS);

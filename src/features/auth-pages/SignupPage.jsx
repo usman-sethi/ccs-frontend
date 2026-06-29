@@ -56,10 +56,10 @@ export default function SignupPage() {
   });
 
   useEffect(() => {
-    (async () => {
-      const result = await backendMiddleware("signup");
-      if (!result) router.push("/");
-    })();
+    // (async () => {
+    //   const result = await backendMiddleware("signup");
+    //   if (!result) router.push("/");
+    // })();
 
     const isOTPSent =
       JSON.parse(sessionStorage.getItem("otpSent")) || false;
