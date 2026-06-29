@@ -13,6 +13,7 @@ import {
   Globe,
   Laptop,
   GraduationCap,
+  CodeXml,
 } from "lucide-react";
 
 /* ---------- Icons ---------- */
@@ -249,18 +250,19 @@ export const DEFAULT_SITE_CONTENT = {
       people: seedMembers("md"),
     },
     {
-      slug: "study-circle",
-      name: "Study Circle Team",
-      iconName: "GraduationCap",
-      short: "Focusing on building strong foundations and exploring new ideas.",
+      slug: "development-team",
+      name: "Development Team",
+      iconName: "CodeXml",
+      short:
+        "Building scalable software, solving real-world problems, and shipping impactful products.",
       description:
-        "The Study Circle helps students strengthen core concepts, develop effective learning habits, and grow alongside peers in a supportive environment.",
+        "The Development Team brings programmers together to design, build, test, and maintain software projects while practicing modern development workflows and collaborative engineering.",
       about:
-        "The Study Circle serves as the starting point for many CCS members. It provides a space to learn, collaborate, and build the confidence and foundations needed to take on future programs, projects, and leadership opportunities.",
-      tagline: "Learn today. Lead tomorrow.",
-      members: 22,
-      leads: ["Fajar Zeb", "Nasir Khan"],
-      people: seedMembers("dev", "Daniyal Sheikh", "Anum Yousaf"),
+        "The Development Team is where ideas become reality through code. Members collaborate on real-world applications, contribute to open-source and internal projects, strengthen technical skills, and gain hands-on experience with industry-standard tools, frameworks, and development practices.",
+      tagline: "Build. Ship. Improve.",
+      members: 2,
+      leads: ["Muhammad Musa"],
+      people: seedMembers("dev"),
     },
     {
       slug: "media-team",
@@ -397,6 +399,13 @@ export const DEFAULT_SITE_CONTENT = {
       department: "Cyber Security",
       linkedin: "#",
       initials: "FZ",
+    },
+    {
+      name: "Muhammad Musa",
+      position: "Male Development Team Head",
+      department: "Software Engineering",
+      linkedin: "#",
+      initials: "MM",
     },
 
     // Club Leads

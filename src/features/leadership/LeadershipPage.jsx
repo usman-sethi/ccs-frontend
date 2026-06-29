@@ -72,7 +72,7 @@ export default function LeadershipPage() {
         ) : (
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((l) => (
-              <LeaderCard key={l.name} leader={l} />
+              <LeaderCard key={`${l.name}-${l.position}`} leader={l} />
             ))}
           </div>
         )}
