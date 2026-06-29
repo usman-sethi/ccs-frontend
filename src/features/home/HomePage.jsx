@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useRef } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/shared/SectionHeader";
@@ -33,7 +33,8 @@ const fadeUp = {
 
 export default function HomePage() {
   const { isLoggedInRef, isAdmin, isDeveloper, isKnown, user } = useAuth();
-  const [heroBGLoaded, setHeroBGLoaded] = useState(false);
+
+  const loadedRef = useRef(null);
 
   const { content } = useSiteContent();
   const {
@@ -74,33 +75,35 @@ export default function HomePage() {
       {/* ──────────── HERO ──────────── */}
       <section className="relative isolate overflow-hidden min-h-[75vh] md:min-h-[86vh] flex flex-col md:justify-center">
         {/* Background image */}
-        {/* <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <Image
             priority
-            loading="eager"
             src={HERO_IMG_LOW}
-            className={`md:object-cover ${heroBGLoaded && "hidden"} object-contain md:object-[center_79%]`}
+            loading="eager"
+            className={`md:object-cover ${loadedRef.current && "hidden"} object-contain md:object-[center_79%]`}
             fill
             alt=""
             sizes="100%"
           />
-        </div> */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <Image
+            priority
             src={HERO_IMG_HIGH}
-            className={`md:object-cover object-contain md:object-[center_79%]`}
-            fill
             loading="eager"
-            sizes="100%"
+            className={`md:object-cover ${!loadedRef.current && "hidden"} object-contain md:object-[center_79%]`}
+            fill
             alt=""
-            onLoad={() => console.log("done")}
+            sizes="100%"
+            onLoad={() => {
+              console.log("hero image loaded");
+              loadedRef.current = true;
+            }}
           />
         </div>
 
         {/* Always-dark overlay — never shows the page bg colour through in light mode */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-b md:bg-linear-to-t from-[rgba(0,0,0,0.48)] to-[rgba(0,0,0,0)] from-0% via-100% md:via-20%"
+          className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-b md:bg-linear-to-t md:from-[rgba(0,0,0,0.48)] from-[rgba(0,0,0,0.88)] to-[rgba(0,0,0,0)] from-10% via-100% md:via-20%"
         />
 
         {/* Subtle colour tint from primary */}
