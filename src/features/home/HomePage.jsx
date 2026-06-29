@@ -74,7 +74,7 @@ export default function HomePage() {
       {/* ──────────── HERO ──────────── */}
       <section className="relative isolate overflow-hidden min-h-[75vh] md:min-h-[86vh] flex flex-col md:justify-center">
         {/* Background image */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        {/* <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <Image
             priority
             loading="eager"
@@ -84,19 +84,19 @@ export default function HomePage() {
             alt=""
             sizes="100%"
           />
-        </div>
+        </div> */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <Image
             src={HERO_IMG_HIGH}
-            className={`md:object-cover  ${!heroBGLoaded && "hidden"} object-contain md:object-[center_79%]`}
+            className={`md:object-cover object-contain md:object-[center_79%]`}
             fill
-            loading="lazy"
+            loading="eager"
             sizes="100%"
             alt=""
-            onLoad={() => {
-              setHeroBGLoaded(true);
-              console.log("high uplaoded")
-            }}
+            // onLoad={() => {
+            //   setHeroBGLoaded(true);
+            //   console.log("high uplaoded")
+            // }}
           />
         </div>
 
