@@ -707,6 +707,15 @@ export default function DashboardPage() {
                 )}
               </Button>
             </div>
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-primary hover:underline"
+              >
+                Sign in
+              </Link>
+            </p>
           </form>
         </div>
       </section>
