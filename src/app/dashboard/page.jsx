@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import backendMiddleware from "@/backend-middleware";
 import { toast } from "sonner";
 import { useSiteContent } from "@/context/SiteContentContext";
+import { fetchPositions } from "@/lib/api.js";
 import {
   Shield,
   Download,
@@ -280,27 +281,36 @@ function CardSection({ user }) {
 ═══════════════════════════════════════ */
 export default function DashboardPage() {
   const { user, isAdmin, isDeveloper, updateProfile } = useAuth();
+  const [positions, setPositions] = useState([]);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [avatarDialog, setAvatarDialog] = useState(false);
   const [avatarObj, setAvatarObj] = useState(user?.avatarObj || null);
   const [avatarPreview, setAvatarPreview] = useState(user?.avatarUrl || "");
-  const { content } = useSiteContent();
-  const LEADERS = content.leaders;
-
-  const positions = useMemo(
-    () => Array.from(new Set(LEADERS.map((l) => l.position))),
-    [LEADERS],
-  );
 
   useEffect(() => {
-    (async () => {
+    const routePermission = async () => {
       const result = await backendMiddleware("/dashboard");
       if (!result) {
         router.push("/");
       }
-    })();
+    };
+    // routePermission();
+
+    const getPositions = async () => {
+      const positions = await fetchPositions();
+      if (!positions.data.length) {
+        toast.error("Positions not found", {
+          description: "Please contact the developer of this website",
+        });
+        return;
+      }
+
+      setPositions(positions.data.map((item) => (item.isReserved ? {} : item)));
+    };
+    getPositions();
   }, []);
+
 
   // Real certificates from the certificate system
   const [certs, setCerts] = useState([]);
@@ -657,11 +667,15 @@ export default function DashboardPage() {
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    {positions.map((y) => (
-                      <SelectItem key={y} value={y}>
-                        {y}
-                      </SelectItem>
-                    ))}
+                    {positions.map((y) => {
+                      return (
+                        y?._id && (
+                          <SelectItem key={y?._id} value={y?.position}>
+                            {y?.position}
+                          </SelectItem>
+                        )
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </Field>
@@ -714,7 +728,7 @@ export default function DashboardPage() {
         onConfirm={(file) => {
           setAvatarObj(file);
           setAvatarPreview(URL.createObjectURL(file));
-          toast.info("Now save changes below")
+          toast.info("Now save changes below");
         }}
       />
     </>

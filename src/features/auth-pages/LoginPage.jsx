@@ -53,6 +53,7 @@ export default function LoginPage() {
       await signIn(values.email, values.password);
       sessionStorage.setItem("otpSent", JSON.stringify(true));
       sessionStorage.setItem("email", JSON.stringify(values.email));
+      localStorage.setItem("isRecruited", JSON.stringify(true));
       toast.success("Login successful!", {
         description:
           "Check your email to verify your account and let's get started!",

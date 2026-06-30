@@ -168,6 +168,13 @@ export async function submitContact(data) {
  * POST /api/recruitment
  * Expected body: { fullName, email, phone, department, semester, club, motivation }
  */
+
+export const fetchPositions = async () => {
+  return request("/positions", {
+    method: "GET",
+  });
+};
+
 export async function submitRecruitment(data) {
   return request("/recruitments", {
     method: "POST",
