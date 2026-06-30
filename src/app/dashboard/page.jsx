@@ -311,7 +311,6 @@ export default function DashboardPage() {
     getPositions();
   }, []);
 
-
   // Real certificates from the certificate system
   const [certs, setCerts] = useState([]);
   const [certTemplates, setCertTemplates] = useState([]);
@@ -660,22 +659,28 @@ export default function DashboardPage() {
               >
                 <Select
                   value={form.watch("position")}
-                  disabled={busy}
+                  disabled={busy || user?.position}
                   onValueChange={(v) => form.setValue("position", v)}
                 >
                   <SelectTrigger aria-label="Position">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    {positions.map((y) => {
-                      return (
-                        y?._id && (
-                          <SelectItem key={y?._id} value={y?.position}>
-                            {y?.position}
-                          </SelectItem>
-                        )
-                      );
-                    })}
+                    {!user?.position ? (
+                      positions.map((y) => {
+                        return (
+                          y?._id && (
+                            <SelectItem key={y?._id} value={y?.position}>
+                              {y?.position}
+                            </SelectItem>
+                          )
+                        );
+                      })
+                    ) : (
+                      <SelectItem key={user._id} value={user.position}>
+                        {user.position}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </Field>
