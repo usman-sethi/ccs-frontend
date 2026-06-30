@@ -375,6 +375,13 @@ export const DEFAULT_SITE_CONTENT = {
       linkedin: "#",
       initials: "GS",
     },
+    {
+      name: "Ehtisham Khan",
+      position: "Media Team Head",
+      department: "Software Engineering",
+      linkedin: "#",
+      initials: "EK",
+    },
 
     // Finance
     {
