@@ -295,7 +295,7 @@ export default function DashboardPage() {
         router.push("/");
       }
     };
-    // routePermission();
+    routePermission();
 
     const getPositions = async () => {
       const positions = await fetchPositions();
