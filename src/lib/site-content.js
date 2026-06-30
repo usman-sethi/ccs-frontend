@@ -275,7 +275,7 @@ export const DEFAULT_SITE_CONTENT = {
         "From event coverage to creative campaigns, the Media Team brings the CCS story to life through photography, design, video, and digital content.",
       tagline: "Create. Capture. Inspire.",
       members: 28,
-      leads: ["Anum Yousaf"],
+      leads: ["Ehtisham Khan"],
       people: seedMembers("md"),
     },
     {
