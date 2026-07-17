@@ -35,22 +35,67 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { isAdmin, loading, isKnown } = useAuth();
+ const { isAdmin, loading, isKnown } = useAuth();
 
-  useEffect(() => {
-    if (!loading && isKnown && !isAdmin) {
-      router.replace("/404"); // or "/" if preferred
-    }
-  }, [loading, isKnown, isAdmin, router]);
-
-  if (loading || !isKnown) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
-    );
+useEffect(() => {
+  if (!loading && isKnown && !isAdmin) {
+    router.replace("/404");
   }
+}, [loading, isKnown, isAdmin, router]);
 
+if (loading || !isKnown) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6">
+        {/* Skeleton Dashboard */}
+        <div className="mt-16 w-full max-w-5xl">
+          {/* Top Stats */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="h-28 animate-pulse rounded-2xl bg-green-100/70"
+              />
+            ))}
+          </div>
+
+          {/* Content */}
+          <div className="mt-8 grid gap-6 lg:grid-cols-[260px_1fr]">
+            {/* Sidebar Skeleton */}
+            <div className="space-y-4 rounded-2xl border border-green-100 bg-white/40 p-5 backdrop-blur-sm">
+              {[...Array(7)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-10 animate-pulse rounded-lg bg-green-100"
+                />
+              ))}
+            </div>
+
+            {/* Main Skeleton */}
+            <div className="space-y-5 rounded-2xl border border-green-100 bg-white/40 p-6 backdrop-blur-sm">
+              <div className="h-8 w-1/3 animate-pulse rounded bg-green-100"></div>
+
+              <div className="space-y-3">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-14 animate-pulse rounded-xl bg-green-100"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Status */}
+        <div className="mt-10 flex items-center gap-2 text-sm font-medium text-green-700">
+          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-green-600"></span>
+          Authenticating...
+        </div>
+      </div>
+    </div>
+  );
+}
   if (!isAdmin) {
     return null;
   }
