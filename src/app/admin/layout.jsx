@@ -37,9 +37,10 @@ export default function AdminLayout({ children }) {
 
  const { isAdmin, loading, isKnown } = useAuth();
 
-useEffect(() => {
+// using redirect 
+  useEffect(() => {
   if (!loading && isKnown && !isAdmin) {
-    router.replace("/404");
+    router.replace("/recruitment");
   }
 }, [loading, isKnown, isAdmin, router]);
 

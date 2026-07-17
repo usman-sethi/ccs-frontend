@@ -45,11 +45,19 @@ export function AuthProvider({ children }) {
   const isLoggedInRef = useRef(null);
   const [isKnown, setIsKnown] = useState(false);
 
-  useEffect(() => {
-    if (isAdmin || isDeveloper || isLoggedInRef.current || isRecruited)
-      setIsKnown(true);
-  }, [isAdmin, isDeveloper, isLoggedInRef.current, isRecruited]);
+  // useEffect(() => {
+  //   if (isAdmin || isDeveloper || isLoggedInRef.current || isRecruited)
+  //     setIsKnown(true);
+  // }, [isAdmin, isDeveloper, isLoggedInRef.current, isRecruited]);
 
+// for guest its always false so 
+  useEffect(() => {
+    if (!loading) {
+     setIsKnown(true);
+   }
+  }, [loading]);
+
+  
   useEffect(() => {
     if (!user || !isLoggedInRef.current) return;
     setIsAdmin(user.role === "admin");
