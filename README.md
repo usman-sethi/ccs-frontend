@@ -1,57 +1,153 @@
 # CCS — Core Computing Society
 
-Next.js 15 App Router conversion of the CCS website.
+A modern web platform for the Core Computing Society built with Next.js 15 (App Router). The application delivers a fast, responsive, and accessible experience while providing administrators with an intuitive content management interface.
 
-## Stack
+---
 
-- **Framework**: Next.js 15 (App Router, JavaScript/JSX)
-- **Styling**: Tailwind CSS v4
-- **UI**: shadcn/ui components (converted to JSX)
-- **Animations**: Framer Motion
-- **Forms**: React Hook Form + Zod
-- **Auth**: Express/Node backend (JWT via cookies)
-- **Storage**: localStorage (site content, theme)
+## Features
 
-## Getting started
+- Modern responsive interface
+- Server-side rendering with Next.js App Router
+- Secure authentication
+- Admin dashboard for content management
+- Accessible UI built with Tailwind CSS and shadcn/ui
+- Form validation using React Hook Form and Zod
+- Smooth animations with Framer Motion
+- Progressive offline support
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|--------|------------|
+| Framework | Next.js 15 |
+| Language | JavaScript (ES2023) |
+| Styling | Tailwind CSS v4 |
+| UI Components | shadcn/ui |
+| Forms | React Hook Form + Zod |
+| Animation | Framer Motion |
+| Backend | Node.js / Express |
+| Authentication | JWT |
+| Database | MongoDB |
+
+---
+
+## Requirements
+
+- Node.js 18+
+- npm 9+
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd ccs
+```
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Create your environment file:
+
+```bash
 cp .env.example .env.local
-# Edit .env.local with your backend URL
+```
+
+Configure the required environment variables.
+
+Start the development server:
+
+```bash
 npm run dev
 ```
 
-## Project structure
+The application will be available at:
+
+```
+http://localhost:3000
+```
+
+---
+
+## Environment Variables
+
+Create a `.env.local` file.
+
+| Variable | Description |
+|----------|-------------|
+| NEXT_PUBLIC_API_URL | Backend API URL |
+
+Refer to `.env.example` for the complete configuration.
+
+---
+
+## Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| npm run dev | Start development server |
+| npm run build | Build for production |
+| npm run start | Start production server |
+| npm run lint | Run ESLint |
+
+---
+
+## Project Structure
 
 ```
 src/
-  app/             → Next.js App Router pages (thin server wrappers)
-  features/        → Client page components (one per route)
-  components/
-    shared/        → Navbar, Footer, Cards, etc.
-    ui/            → shadcn/ui components (JSX)
-  context/         → ThemeContext, SiteContentContext, AuthContext
-  hooks/           → use-auth, use-mobile
-  lib/             → utils, site-content, api, image-crop
-  constants/       → society data
+├── app/
+├── components/
+├── context/
+├── features/
+├── hooks/
+├── lib/
+├── constants/
+└── styles/
 ```
 
-## Connecting the Express backend
+---
 
-All API calls live in `src/lib/api.js`. Each function has a JSDoc comment
-showing the expected endpoint, request body, and response shape.
+## Backend Integration
 
-Set `NEXT_PUBLIC_API_URL` in `.env.local` to point to your running backend.
+The frontend communicates with a separate backend service through REST APIs.
 
-## Offline / site content
+Ensure the backend is running and configure the API endpoint in your environment variables before starting the application.
 
-All public content (society info, clubs, events, etc.) is stored in `localStorage`
-under the key `ccs-site-content-v1`. Admins can customize it via `/admin`.
-The app works fully offline for all read-only pages.
+---
 
-## Auth flow
+## Security
 
-1. User signs in via `/auth` → `POST /api/auth/signin`
-2. Backend returns `{ id, email, displayName, avatarUrl, isAdmin, token }`
-3. User is stored in `localStorage` under `ccs-auth-user`
-4. Protected routes (`/dashboard`, `/admin`) check auth client-side
+This project follows common web security best practices including:
+
+- Secure authentication
+- Protected API routes
+- Input validation
+- Environment-based configuration
+- Secure cookie handling (when supported by the backend)
+- Production-ready build optimization
+
+For security reasons, implementation details are intentionally omitted from this documentation.
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+## License
+
+This project is licensed under the applicable license specified by the repository owner.
