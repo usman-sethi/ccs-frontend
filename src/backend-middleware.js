@@ -1,19 +1,29 @@
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+
 const backendMiddleware = async (pathname) => {
-  const apiURL =
-    `${process.env.NEXT_PUBLIC_API_URL}/checkRoute` ||
-    "http://localhost:4000/api/v1/checkRoute";
-  const res = await fetch(apiURL, {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({ pathname }),
-  });
+  try {
+    const response = await fetch(`${API_URL}/checkRoute`, {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ pathname }),
+    });
 
-  const response = await res.json();
+    if (!response.ok) {
+      return false;
+    }
 
-  return response.result;
+    const data = await response.json();
+
+    return Boolean(data?.result);
+  } catch (error) {
+    console.error("Route authorization failed:", error);
+    return false;
+  }
 };
 
 export default backendMiddleware;

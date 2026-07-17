@@ -56,19 +56,19 @@ export function AuthProvider({ children }) {
     setIsDeveloper(user.role === "developer");
   }, [user, isLoggedInRef.current]);
 
-  useEffect(() => {
-    // Restore session from localStorage on mount
-    try {
-      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setUser(parsed);
-      }
-    } catch {
-      /* ignore corrupt storage */
+ useEffect(() => {
+  // Restore session from localStorage on mount
+  try {
+    const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setUser(parsed);
     }
-    setLoading(false);
-  }, []);
+  } catch {
+    /* ignore corrupt storage */
+  }
+  setLoading(false);
+}, []);
 
   const signIn = useCallback(async (email, password) => {
     return await api.signIn({ email, password });

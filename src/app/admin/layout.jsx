@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Palette,
@@ -15,10 +15,11 @@ import {
   Wand2,
   Award,
 } from "lucide-react";
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
-let NAV = [
+const NAV = [
   { href: "/admin/recruitment", label: "Recruitment", icon: ClipboardList },
   { href: "/admin", label: "Customize", icon: Palette, exact: true },
   { href: "/admin/members", label: "Members", icon: Users },
@@ -32,15 +33,34 @@ let NAV = [
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
-  const { isAdmin, loading } = useAuth();
+  const router = useRouter();
 
-  if (loading) return;
+  const { isAdmin, loading, isKnown } = useAuth();
 
-  NAV = !isAdmin ? NAV : NAV.filter((li) => li.href === "/admin/recruitment");
+  useEffect(() => {
+    if (!loading && isKnown && !isAdmin) {
+      router.replace("/404"); // or "/" if preferred
+    }
+  }, [loading, isKnown, isAdmin, router]);
+
+  if (loading || !isKnown) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
+  const navItems = isAdmin
+    ? NAV
+    : NAV.filter((item) => item.href === "/admin/recruitment");
 
   return (
     <div className="container-page py-8">
-      {/* Breadcrumb */}
       <div className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
         <Link
           href="/dashboard"
@@ -53,13 +73,13 @@ export default function AdminLayout({ children }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-        {/* Sidebar */}
         <aside>
           <nav className="flex flex-col gap-1 rounded-xl border border-border bg-card p-2">
-            {NAV.map((item) => {
+            {navItems.map((item) => {
               const active = item.exact
                 ? pathname === item.href
                 : pathname.startsWith(item.href);
+
               return (
                 <Link
                   key={item.href}
@@ -68,7 +88,7 @@ export default function AdminLayout({ children }) {
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     active
                       ? "bg-accent text-foreground"
-                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
                   )}
                 >
                   <item.icon className="size-4 shrink-0" />
@@ -79,7 +99,6 @@ export default function AdminLayout({ children }) {
           </nav>
         </aside>
 
-        {/* Page content */}
         <main className="min-w-0">{children}</main>
       </div>
     </div>
