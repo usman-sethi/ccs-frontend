@@ -1,4 +1,4 @@
-1. recruitment -> user appies for joining ccs
+    1. recruitment -> user appies for joining ccs
 
 2. signup -> user gets email of acceptance and he signs up
 (email + password) - login -> user can now login with his account
