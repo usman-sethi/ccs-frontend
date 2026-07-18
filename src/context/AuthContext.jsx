@@ -64,19 +64,28 @@ export function AuthProvider({ children }) {
     setIsDeveloper(user.role === "developer");
   }, [user, isLoggedInRef.current]);
 
- useEffect(() => {
-  // Restore session from localStorage on mount
-  try {
-    const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setUser(parsed);
-    }
-  } catch {
-    /* ignore corrupt storage */
-  }
+//  useEffect(() => {
+//   // Restore session from localStorage on mount
+//   try {
+//     const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+//     if (stored) {
+//       const parsed = JSON.parse(stored);
+//       setUser(parsed);
+//     }
+//   } catch {
+//     /* ignore corrupt storage */
+//   }
+//   setLoading(false);
+// }, []);
+
+
+
+//new code 
+useEffect(() => {
   setLoading(false);
 }, []);
+
+
 
   const signIn = useCallback(async (email, password) => {
     return await api.signIn({ email, password });
@@ -115,21 +124,47 @@ export function AuthProvider({ children }) {
     return api.forgotPassword(email);
   }, []);
 
+  // const getProfile = useCallback(async () => {
+  //   const me = await api.getProfile();
+  //   if (me.success) {
+  //     setUser(me.data);
+  //     localStorage.setItem("loggedIn", JSON.stringify(true));
+  //   } else {
+  //     localStorage.setItem("loggedIn", JSON.stringify(false));
+  //   }
+  // }, []);
+
+  //handle unauth users 
   const getProfile = useCallback(async () => {
+  try {
     const me = await api.getProfile();
+
     if (me.success) {
       setUser(me.data);
-      localStorage.setItem("loggedIn", JSON.stringify(true));
+      isLoggedInRef.current = true;
     } else {
-      localStorage.setItem("loggedIn", JSON.stringify(false));
+      setUser(null);
+      isLoggedInRef.current = false;
     }
-  }, []);
+  } catch {
+    setUser(null);
+    isLoggedInRef.current = false;
+  }
+}, []);
 
+  // useEffect(() => {
+  //   isLoggedInRef.current =
+  //     JSON.parse(localStorage.getItem("loggedIn")) || false;
+  //   setIsRecruited(JSON.parse(localStorage.getItem("isRecruited")) || false);
+  // }, [user, isLoggedInRef.current]);
+
+
+  //new code 
   useEffect(() => {
-    isLoggedInRef.current =
-      JSON.parse(localStorage.getItem("loggedIn")) || false;
-    setIsRecruited(JSON.parse(localStorage.getItem("isRecruited")) || false);
-  }, [user, isLoggedInRef.current]);
+  isLoggedInRef.current = !!user;
+  setIsRecruited(false);
+}, [user]);
+
 
   useEffect(() => {
     if (user) return;
