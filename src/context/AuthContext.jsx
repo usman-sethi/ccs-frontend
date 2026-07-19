@@ -45,47 +45,16 @@ export function AuthProvider({ children }) {
   const isLoggedInRef = useRef(null);
   const [isKnown, setIsKnown] = useState(false);
 
-  // useEffect(() => {
-  //   if (isAdmin || isDeveloper || isLoggedInRef.current || isRecruited)
-  //     setIsKnown(true);
-  // }, [isAdmin, isDeveloper, isLoggedInRef.current, isRecruited]);
-
-// for guest its always false so 
   useEffect(() => {
     if (!loading) {
-     setIsKnown(true);
-   }
+      setIsKnown(true);
+    }
   }, [loading]);
 
-  
   useEffect(() => {
-    if (!user || !isLoggedInRef.current) return;
-    setIsAdmin(user.role === "admin");
-    setIsDeveloper(user.role === "developer");
-  }, [user, isLoggedInRef.current]);
-
-//  useEffect(() => {
-//   // Restore session from localStorage on mount
-//   try {
-//     const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-//     if (stored) {
-//       const parsed = JSON.parse(stored);
-//       setUser(parsed);
-//     }
-//   } catch {
-//     /* ignore corrupt storage */
-//   }
-//   setLoading(false);
-// }, []);
-
-
-
-//new code 
-useEffect(() => {
-  setLoading(false);
-}, []);
-
-
+    setIsAdmin(user?.role === "admin");
+    setIsDeveloper(user?.role === "developer");
+  }, [user]);
 
   const signIn = useCallback(async (email, password) => {
     return await api.signIn({ email, password });
@@ -124,54 +93,32 @@ useEffect(() => {
     return api.forgotPassword(email);
   }, []);
 
-  // const getProfile = useCallback(async () => {
-  //   const me = await api.getProfile();
-  //   if (me.success) {
-  //     setUser(me.data);
-  //     localStorage.setItem("loggedIn", JSON.stringify(true));
-  //   } else {
-  //     localStorage.setItem("loggedIn", JSON.stringify(false));
-  //   }
-  // }, []);
-
-  //handle unauth users 
   const getProfile = useCallback(async () => {
-  try {
-    const me = await api.getProfile();
-
-    if (me.success) {
-      setUser(me.data);
-      isLoggedInRef.current = true;
-    } else {
+    try {
+      const me = await api.getProfile();
+      if (me.success) {
+        setUser(me.data);
+        isLoggedInRef.current = true;
+        return me.data;
+      }
       setUser(null);
       isLoggedInRef.current = false;
+      return null;
+    } catch {
+      setUser(null);
+      isLoggedInRef.current = false;
+      return null;
     }
-  } catch {
-    setUser(null);
-    isLoggedInRef.current = false;
-  }
-}, []);
-
-  // useEffect(() => {
-  //   isLoggedInRef.current =
-  //     JSON.parse(localStorage.getItem("loggedIn")) || false;
-  //   setIsRecruited(JSON.parse(localStorage.getItem("isRecruited")) || false);
-  // }, [user, isLoggedInRef.current]);
-
-
-  //new code 
-  useEffect(() => {
-  isLoggedInRef.current = !!user;
-  setIsRecruited(false);
-}, [user]);
-
+  }, []);
 
   useEffect(() => {
-    if (user) return;
-    if (!isLoggedInRef.current) return;
-
-    getProfile();
-  }, [user, isLoggedInRef.current, getProfile]);
+    let active = true;
+    (async () => {
+      await getProfile();
+      if (active) setLoading(false);
+    })();
+    return () => { active = false; };
+  }, [getProfile]);
 
   const updateProfile = useCallback(async (data) => {
     const updated = await api.updateProfile(data);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,12 +47,6 @@ export default function RecruitmentPage() {
   const [busy, setBusy] = useState(false);
   const { setIsKnown } = useAuth();
 
-  // if recruited
-  useEffect(() => {
-    const isRecruited = JSON.parse(localStorage.getItem("isRecruited"));
-    if (isRecruited) setDone(true);
-  }, []);
-
   const form = useForm({
     resolver: zodResolver(Schema),
     defaultValues: {
@@ -73,7 +67,6 @@ export default function RecruitmentPage() {
     try {
       await submitRecruitment(values);
       setIsKnown(true);
-      localStorage.setItem("isRecruited", JSON.stringify(true));
       setDone(true);
     } catch (e) {
       toast.error("Submission failed", { description: e.message });

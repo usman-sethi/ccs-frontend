@@ -49,7 +49,8 @@ export default function TwoFAPage() {
   const { twoFactorAuth, setUser, resendOTP, isLoggedInRef } = useAuth();
 
   const router = useRouter();
-  const [email, setEmail] = useState("you email");
+  const [email, setEmail] = useState("");
+  const [canVerify, setCanVerify] = useState(false);
 
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(""));
   const [activeIdx, setActiveIdx] = useState(0);
@@ -58,9 +59,15 @@ export default function TwoFAPage() {
   const [resendSecs, setResendSecs] = useState(RESEND_SECS);
 
   useEffect(() => {
-    const email = JSON.parse(sessionStorage.getItem("email")) || "your email";
-    setEmail(email);
-  }, []);
+    const pending = sessionStorage.getItem("otpSent") === "true";
+    const pendingEmail = JSON.parse(sessionStorage.getItem("email") || "null");
+    if (!pending || typeof pendingEmail !== "string" || !pendingEmail) {
+      router.replace("/login");
+      return;
+    }
+    setEmail(pendingEmail);
+    setCanVerify(true);
+  }, [router]);
 
   const inputsRef = useRef([]);
 
@@ -127,6 +134,7 @@ export default function TwoFAPage() {
   };
 
   const handleVerify = async () => {
+    if (!canVerify) return;
     const code = digits.join("");
     if (code.length < OTP_LENGTH) {
       setHasError(true);
@@ -163,6 +171,7 @@ export default function TwoFAPage() {
   // }, []);
 
   const handleResend = async () => {
+    if (!canVerify) return;
     setResendSecs(RESEND_SECS);
 
     try {
@@ -174,6 +183,8 @@ export default function TwoFAPage() {
   };
 
   const filled = digits.filter(Boolean).length;
+
+  if (!canVerify) return null;
 
   return (
     <AuthShell backHref="/login" backLabel="Back to sign in">

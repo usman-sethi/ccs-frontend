@@ -133,7 +133,9 @@ export async function updateProfile(data) {
 
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        formData.append(key, value);
+        // The dashboard calls its cropped avatar `avatar`; the API stores it
+        // as `profileImage` to match the user object consumed across the UI.
+        formData.append(key === "avatar" ? "profileImage" : key, value);
       }
     });
 

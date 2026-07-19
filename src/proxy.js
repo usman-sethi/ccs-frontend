@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || "token";
-const API_BASE_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
 const GUEST_BLOCKED = ["/dashboard", "/admin"];
 const ADMIN_ONLY = ["/admin"];
+const PUBLIC_ADMIN_PATHS = ["/admin/recruitment"];
 
-const GUEST_REDIRECT = "/recruitment";
+const GUEST_REDIRECT = "/login";
 const NON_ADMIN_REDIRECT = "/dashboard";
 
 function matches(pathname, list) {
   return list.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+function isPublicAdminPath(pathname) {
+  return PUBLIC_ADMIN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 function getCookieValue(cookieHeader, name) {
@@ -45,7 +50,7 @@ export async function proxy(req) {
   const token = getCookieValue(cookieHeader, AUTH_COOKIE_NAME);
 
   if (!token) {
-    if (guestBlocked) {
+    if (guestBlocked && !isPublicAdminPath(pathname)) {
       return buildGuestRedirect(req);
     }
     return NextResponse.next();
@@ -57,7 +62,7 @@ export async function proxy(req) {
 
   let isAdmin = false;
   try {
-    const response = await fetch(`${API_BASE_URL.replace(/\/$/, "")}/api/auth/me`, {
+    const response = await fetch(`${API_BASE_URL.replace(/\/$/, "")}/users/me`, {
       headers: {
         cookie: cookieHeader,
         accept: "application/json",
@@ -70,7 +75,7 @@ export async function proxy(req) {
     }
 
     const data = await response.json();
-    isAdmin = Boolean(data?.isAdmin);
+    isAdmin = ["admin", "developer"].includes(data?.data?.role);
   } catch {
     return buildGuestRedirect(req);
   }

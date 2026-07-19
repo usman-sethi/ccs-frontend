@@ -35,14 +35,14 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
- const { isAdmin, loading, isKnown } = useAuth();
+  const { isAdmin, loading, isKnown } = useAuth();
+  const isRecruitmentRoute = pathname === "/admin/recruitment" || pathname.startsWith("/admin/recruitment/");
 
-// using redirect 
   useEffect(() => {
-  if (!loading && isKnown && !isAdmin) {
-    router.replace("/recruitment");
-  }
-}, [loading, isKnown, isAdmin, router]);
+    if (!loading && isKnown && !isAdmin && !isRecruitmentRoute) {
+      router.replace("/recruitment");
+    }
+  }, [loading, isKnown, isAdmin, isRecruitmentRoute, router]);
 
 if (loading || !isKnown) {
   return (
@@ -97,11 +97,11 @@ if (loading || !isKnown) {
     </div>
   );
 }
-  if (!isAdmin) {
+  if (!isAdmin && !isRecruitmentRoute) {
     return null;
   }
 
-  const navItems = isAdmin
+  const navItems = isAdmin || isRecruitmentRoute
     ? NAV
     : NAV.filter((item) => item.href === "/admin/recruitment");
 
