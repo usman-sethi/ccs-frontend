@@ -9,11 +9,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { AuthButton } from "@/components/auth/FormField";
 import { cn } from "@/lib/utils";
-import backendMiddleware from "@/backend-middleware";
 import { useAuth } from "@/context/AuthContext";
 
 const OTP_LENGTH = 6;
 const RESEND_SECS = 60;
+const MAX_ATTEMPTS = 5; // FIX #3: soft client-side throttle. Real limiting MUST also
+                        // happen server-side (lock/invalidate code after N failed
+                        // attempts) — this only improves UX, it is not a security boundary.
 
 /* ── Individual digit cell ── */
 function OtpCell({ value, active, hasError }) {
@@ -57,6 +59,7 @@ export default function TwoFAPage() {
   const [busy, setBusy] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [resendSecs, setResendSecs] = useState(RESEND_SECS);
+  const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS); // FIX #3
 
   useEffect(() => {
     const pending = sessionStorage.getItem("otpSent") === "true";
@@ -134,7 +137,18 @@ export default function TwoFAPage() {
   };
 
   const handleVerify = async () => {
-    if (!canVerify) return;
+    if (!canVerify || busy) return;
+
+    // FIX #3: client-side attempt throttle (defense in depth only —
+    // the backend must independently enforce max attempts / lockout,
+    // since this can be bypassed by anyone calling the API directly).
+    if (attemptsLeft <= 0) {
+      toast.error("Too many attempts", {
+        description: "Please request a new code and try again.",
+      });
+      return;
+    }
+
     const code = digits.join("");
     if (code.length < OTP_LENGTH) {
       setHasError(true);
@@ -144,17 +158,25 @@ export default function TwoFAPage() {
 
     setBusy(true);
     try {
-      /* TODO: call your Express backend /api/auth/verify-2fa */
       const data = await twoFactorAuth(email, code);
       setUser(data.user);
-      sessionStorage.removeItem("otpSent")
+      sessionStorage.removeItem("otpSent");
       sessionStorage.removeItem("email");
       isLoggedInRef.current = true;
-      localStorage.setItem("loggedIn", JSON.stringify(true));
+
+      // FIX #2: removed `localStorage.setItem("loggedIn", true)`.
+      // A client-writable localStorage flag is not a real auth boundary —
+      // any XSS or a user opening devtools can set it directly and spoof
+      // a "logged in" state in any client-side route guard that reads it.
+      // Authenticated state should be derived from an httpOnly session
+      // cookie validated by the server on every protected request/route,
+      // not from a value JS on the page can set itself.
+
       toast.success("Verified! Welcome back.");
       router.push("/dashboard");
     } catch (e) {
       setHasError(true);
+      setAttemptsLeft((n) => n - 1); // FIX #3
       setDigits(Array(OTP_LENGTH).fill(""));
       focusCell(0);
       toast.error("Invalid code", { description: "Please try again." });
@@ -163,16 +185,21 @@ export default function TwoFAPage() {
     }
   };
 
-  // useEffect(() => {
-  //   (async () => {
-  //     const result = await backendMiddleware("2fa");
-  //     if (!result) router.push("/");
-  //   })();
-  // }, []);
+  // FIX #5: removed commented-out `backendMiddleware("2fa")` guard effect
+  // and its now-unused import. Dead security checks left commented in
+  // source are a liability — someone can accidentally re-enable a stale/
+  // broken version later, or reviewers can mistake "there's a middleware
+  // check" for "it's actually running." If a route guard is needed here,
+  // add it live, tested, and enforced server-side — not as a client-side
+  // comment.
 
   const handleResend = async () => {
     if (!canVerify) return;
     setResendSecs(RESEND_SECS);
+    setAttemptsLeft(MAX_ATTEMPTS); // FIX #3: reset attempts on a fresh code
+    setHasError(false);
+    setDigits(Array(OTP_LENGTH).fill(""));
+    focusCell(0);
 
     try {
       await resendOTP(email);
@@ -255,6 +282,7 @@ export default function TwoFAPage() {
           loading={busy}
           onClick={handleVerify}
           type="button"
+          disabled={attemptsLeft <= 0}
           className={cn(
             filled === OTP_LENGTH &&
               !busy &&
@@ -263,6 +291,11 @@ export default function TwoFAPage() {
         >
           Verify code
         </AuthButton>
+        {attemptsLeft < MAX_ATTEMPTS && attemptsLeft > 0 && (
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            {attemptsLeft} attempt{attemptsLeft === 1 ? "" : "s"} left
+          </p>
+        )}
       </div>
 
       {/* Resend */}

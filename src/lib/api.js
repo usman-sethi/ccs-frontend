@@ -7,19 +7,31 @@
  */
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.API_URL ||
+  (typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? `${window.location.origin}/api`
+    : "http://localhost:4000/api/v1");
 
 async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
+  const url = `${API_BASE}${path}`;
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-    ...options,
-    headers: {
-      ...(isFormData ? {} : { "Content-Type": "application/json" }),
-      ...options.headers,
-    },
-  });
+  let res;
+  try {
+    res = await fetch(url, {
+      credentials: "include",
+      ...options,
+      headers: {
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...options.headers,
+      },
+    });
+  } catch (error) {
+    throw new Error(
+      `Unable to reach the CCS API at ${url}. Check the backend URL and CORS settings.`,
+    );
+  }
 
   if (!res.ok) {
     let msg = `Request failed (${res.status})`;

@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || "token";
-const API_BASE_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+const API_BASE_URL =
+  process.env.API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? `${window.location.origin}/api`
+    : "http://localhost:4000/api/v1");
 
 const GUEST_BLOCKED = ["/dashboard", "/admin"];
 const ADMIN_ONLY = ["/admin"];
