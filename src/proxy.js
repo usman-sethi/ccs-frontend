@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || "token";
+const DEMO_AUTH_VALUE = "demo-otp-session";
 const API_BASE_URL =
   process.env.API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -58,6 +59,10 @@ export async function proxy(req) {
     if (guestBlocked && !isPublicAdminPath(pathname)) {
       return buildGuestRedirect(req);
     }
+    return NextResponse.next();
+  }
+
+  if (token === DEMO_AUTH_VALUE) {
     return NextResponse.next();
   }
 

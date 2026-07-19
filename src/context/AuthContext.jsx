@@ -35,6 +35,15 @@ const AuthContext = createContext({
 });
 
 const AUTH_STORAGE_KEY = "ccs-auth-user";
+const DEMO_AUTH_COOKIE = "token";
+const DEMO_AUTH_VALUE = "demo-otp-session";
+
+function hasDemoAuthCookie() {
+  if (typeof document === "undefined") return false;
+  return document.cookie
+    .split(";")
+    .some((cookie) => cookie.trim().startsWith(`${DEMO_AUTH_COOKIE}=${DEMO_AUTH_VALUE}`));
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -83,6 +92,9 @@ export function AuthProvider({ children }) {
     isLoggedInRef.current = false;
 
     setUser(null);
+    if (typeof document !== "undefined") {
+      document.cookie = `${DEMO_AUTH_COOKIE}=${DEMO_AUTH_VALUE}; path=/; max-age=0; SameSite=Lax`;
+    }
     localStorage.removeItem("loggedIn");
     localStorage.removeItem(AUTH_STORAGE_KEY);
 
@@ -94,6 +106,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const getProfile = useCallback(async () => {
+    if (hasDemoAuthCookie()) {
+      const demoUser = {
+        email: "demo@example.com",
+        name: "Demo User",
+        role: "user",
+      };
+      setUser(demoUser);
+      isLoggedInRef.current = true;
+      return demoUser;
+    }
+
     try {
       const me = await api.getProfile();
       if (me.success) {

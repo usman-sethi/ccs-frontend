@@ -12,6 +12,29 @@ const API_BASE =
   (typeof window !== "undefined" && window.location.hostname !== "localhost"
     ? `${window.location.origin}/api`
     : "http://localhost:4000/api/v1");
+const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || "token";
+
+function extractAuthToken(payload) {
+  if (!payload || typeof payload !== "object") return null;
+  if (typeof payload.token === "string" && payload.token) return payload.token;
+  if (typeof payload.accessToken === "string" && payload.accessToken) return payload.accessToken;
+  if (typeof payload.jwt === "string" && payload.jwt) return payload.jwt;
+  if (payload.data && typeof payload.data === "object") {
+    return extractAuthToken(payload.data);
+  }
+  if (payload.user && typeof payload.user === "object") {
+    return extractAuthToken(payload.user);
+  }
+  return null;
+}
+
+function persistAuthToken(payload) {
+  if (typeof window === "undefined") return;
+  const token = extractAuthToken(payload);
+  if (!token) return;
+  const secure = window.location.protocol === "https:";
+  document.cookie = `${AUTH_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${secure ? "; Secure" : ""}`;
+}
 
 async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
@@ -46,7 +69,9 @@ async function request(path, options = {}) {
     throw new Error(msg);
   }
 
-  return res.json();
+  const body = await res.json();
+  persistAuthToken(body);
+  return body;
 }
 
 /* -------- Auth -------- */

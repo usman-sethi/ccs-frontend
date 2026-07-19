@@ -16,6 +16,13 @@ const RESEND_SECS = 60;
 const MAX_ATTEMPTS = 5; // FIX #3: soft client-side throttle. Real limiting MUST also
                         // happen server-side (lock/invalidate code after N failed
                         // attempts) — this only improves UX, it is not a security boundary.
+const DEMO_AUTH_COOKIE = "token";
+const DEMO_AUTH_VALUE = "demo-otp-session";
+
+function setDemoAuthCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${DEMO_AUTH_COOKIE}=${DEMO_AUTH_VALUE}; path=/; max-age=604800; SameSite=Lax`;
+}
 
 /* ── Individual digit cell ── */
 function OtpCell({ value, active, hasError }) {
@@ -159,7 +166,8 @@ export default function TwoFAPage() {
     setBusy(true);
     try {
       if (isDemoCode) {
-        setUser({ email, name: email.split("@")[0] || "User" });
+        setDemoAuthCookie();
+        setUser({ email, name: email.split("@")[0] || "User", role: "user" });
         sessionStorage.removeItem("otpSent");
         sessionStorage.removeItem("email");
         isLoggedInRef.current = true;
