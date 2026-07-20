@@ -262,16 +262,31 @@ export default function TwoFAPage() {
               className="sr-only"
               onKeyDown={(e) => handleKey(e, i)}
               onChange={(e) => handleInput(e, i)}
-              onFocus={() => setActiveIdx(i)}
+              // onFocus={() => setActiveIdx(i)}
+              onFocus={(e) => {
+                 setActiveIdx(i);
+                e.target.select();
+              }}
               aria-label={`Digit ${i + 1}`}
             />
-            <button
+            {/* <button
               type="button"
               onClick={() => focusCell(i)}
               tabIndex={-1}
               className="w-full"
               aria-hidden
-            >
+            > */}
+
+            <button
+  type="button"
+  onClick={() => {
+    focusCell(i);
+    inputsRef.current[i]?.focus();
+  }}
+  tabIndex={-1}
+  className="w-full"
+  aria-hidden
+>
               <OtpCell
                 value={d}
                 active={activeIdx === i && !busy}

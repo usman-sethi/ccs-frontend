@@ -13,6 +13,7 @@ const API_BASE =
     ? `${window.location.origin}/api`
     : "http://localhost:4000/api/v1");
 const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME || "token";
+const AUTH_STORAGE_KEY = "ccs-auth-token";
 
 function extractAuthToken(payload) {
   if (!payload || typeof payload !== "object") return null;
@@ -28,18 +29,42 @@ function extractAuthToken(payload) {
   return null;
 }
 
+function getStoredAuthToken() {
+  if (typeof window === "undefined") return null;
+
+  const cookieValue = document.cookie
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${AUTH_COOKIE_NAME}=`));
+
+  if (cookieValue) {
+    return decodeURIComponent(cookieValue.slice(AUTH_COOKIE_NAME.length + 1));
+  }
+
+  return localStorage.getItem(AUTH_STORAGE_KEY);
+}
+
 function persistAuthToken(payload) {
   if (typeof window === "undefined") return;
   const token = extractAuthToken(payload);
   if (!token) return;
+
   const secure = window.location.protocol === "https:";
   document.cookie = `${AUTH_COOKIE_NAME}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${secure ? "; Secure" : ""}`;
+  localStorage.setItem(AUTH_STORAGE_KEY, token);
+}
+
+function clearStoredAuthToken() {
+  if (typeof window === "undefined") return;
+  document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+  localStorage.removeItem(AUTH_STORAGE_KEY);
 }
 
 async function request(path, options = {}) {
   const isFormData = options.body instanceof FormData;
   const url = `${API_BASE}${path}`;
 
+  const authToken = getStoredAuthToken();
   let res;
   try {
     res = await fetch(url, {
@@ -47,6 +72,7 @@ async function request(path, options = {}) {
       ...options,
       headers: {
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         ...options.headers,
       },
     });
@@ -119,9 +145,13 @@ export const resendOTP = async (email) => {
  * POST /api/auth/logout
  */
 export async function signOut() {
-  return request("/auth/logout", { method: "POST" }).catch((err) => {
-    console.log(err.message);
-  });
+  return request("/auth/logout", { method: "POST" })
+    .catch((err) => {
+      console.log(err.message);
+    })
+    .finally(() => {
+      clearStoredAuthToken();
+    });
 }
 
 /**

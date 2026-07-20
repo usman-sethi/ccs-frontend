@@ -5,7 +5,7 @@ const API_URL =
     ? `${window.location.origin}/api`
     : "http://localhost:4000/api/v1");
 
-const backendMiddleware = async (pathname) => {
+export default async function backendMiddleware(pathname) {
   try {
     const response = await fetch(`${API_URL}/checkRoute`, {
       method: "POST",
@@ -28,6 +28,4 @@ const backendMiddleware = async (pathname) => {
     console.error("Route authorization failed:", error);
     return false;
   }
-};
-
-export default backendMiddleware;
+}
