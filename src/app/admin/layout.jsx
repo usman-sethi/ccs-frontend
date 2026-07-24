@@ -35,14 +35,13 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { isAdmin, loading, isKnown } = useAuth();
-  const isRecruitmentRoute = pathname === "/admin/recruitment" || pathname.startsWith("/admin/recruitment/");
+  const { user, isAdmin, loading, isKnown } = useAuth();
 
   useEffect(() => {
-    if (!loading && isKnown && !isAdmin && !isRecruitmentRoute) {
-      router.replace("/recruitment");
+    if (!loading && isKnown && !isAdmin) {
+      router.replace(user ? "/dashboard" : "/login");
     }
-  }, [loading, isKnown, isAdmin, isRecruitmentRoute, router]);
+  }, [loading, isKnown, isAdmin, router, user]);
 
 if (loading || !isKnown) {
   return (
@@ -97,13 +96,11 @@ if (loading || !isKnown) {
     </div>
   );
 }
-  if (!isAdmin && !isRecruitmentRoute) {
+  if (!isAdmin) {
     return null;
   }
 
-  const navItems = isAdmin || isRecruitmentRoute
-    ? NAV
-    : NAV.filter((item) => item.href === "/admin/recruitment");
+  const navItems = NAV;
 
   return (
     <div className="container-page py-8">

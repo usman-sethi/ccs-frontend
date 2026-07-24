@@ -11,7 +11,7 @@ const API_BASE_URL =
 
 const GUEST_BLOCKED = ["/dashboard", "/admin"];
 const ADMIN_ONLY = ["/admin"];
-const PUBLIC_ADMIN_PATHS = ["/admin/recruitment"];
+const PUBLIC_ADMIN_PATHS = [];
 
 const GUEST_REDIRECT = "/login";
 const NON_ADMIN_REDIRECT = "/dashboard";

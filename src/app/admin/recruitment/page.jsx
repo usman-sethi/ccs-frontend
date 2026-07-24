@@ -258,9 +258,9 @@ export default function AdminRecruitmentPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="new">New</SelectItem>
-                            {/* <SelectItem value="reviewing">Reviewing</SelectItem> */}
+                            <SelectItem value="reviewing">Reviewing</SelectItem>
                             <SelectItem value="accepted">Accepted</SelectItem>
-                            {/* <SelectItem value="rejected">Rejected</SelectItem> */}
+                            <SelectItem value="rejected">Rejected</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>

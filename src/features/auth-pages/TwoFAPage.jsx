@@ -252,19 +252,21 @@ export default function TwoFAPage() {
       {/* OTP cells */}
       <div className="flex justify-between gap-2" onPaste={handlePaste}>
         {digits.map((d, i) => (
-          <div key={i} className="flex-1">
+          <div key={i} className="relative flex-1">
             <input
               ref={(el) => (inputsRef.current[i] = el)}
               type="text"
               inputMode="text"
               maxLength={1}
+              autoComplete={i === 0 ? "one-time-code" : "off"}
+              spellCheck="false"
+              autoFocus={i === 0}
               value={d}
-              className="sr-only"
+              className="absolute inset-0 h-full w-full opacity-0 z-10"
               onKeyDown={(e) => handleKey(e, i)}
               onChange={(e) => handleInput(e, i)}
-              // onFocus={() => setActiveIdx(i)}
               onFocus={(e) => {
-                 setActiveIdx(i);
+                setActiveIdx(i);
                 e.target.select();
               }}
               aria-label={`Digit ${i + 1}`}
