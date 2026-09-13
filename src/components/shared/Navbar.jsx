@@ -149,10 +149,22 @@ export function Navbar() {
             )}
           </button>
 
-          <UserMenu />
+          {/* <UserMenu /> */}
+
+          {/* Gate Pass */}
+          <a
+            href="https://bootcampcermony.ai.studio"
+            target="_blank"
+            rel="noreferrer noopener"
+            style={{ background: "var(--nav-btn-bg)" }}
+            className="ml-1 hidden items-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90 hover:shadow-md sm:inline-flex"
+            aria-label="Gate Pass"
+          >
+            Gate Pass
+          </a>
 
           {/* Join CCS */}
-          {!isKnown && (
+          {/* {!isKnown && (
             <Link
               href="/recruitment"
               style={{ background: "var(--nav-btn-bg)" }}
@@ -160,7 +172,7 @@ export function Navbar() {
             >
               Join CCS
             </Link>
-          )}
+          )} */}
 
           {/* Mobile hamburger */}
           <button
@@ -208,7 +220,16 @@ export function Navbar() {
                   </Link>
                 );
               })}
-              {!isKnown && (
+              <a
+                href="https://bootcampcermony.ai.studio"
+                target="_blank"
+                rel="noreferrer noopener"
+                style={{ background: "var(--nav-btn-bg)" }}
+                className="mt-2 flex items-center justify-center rounded-md py-2 text-sm font-semibold text-white hover:opacity-90"
+              >
+                Gate Pass
+              </a>
+              {/* {!isKnown && (
                 <Link
                   href="/recruitment"
                   style={{ background: "var(--nav-btn-bg)" }}
@@ -216,7 +237,7 @@ export function Navbar() {
                 >
                   Join CCS
                 </Link>
-              )}
+              )} */}
             </nav>
           </motion.div>
         )}
