@@ -9,30 +9,74 @@ export const metadata = {
   icons: {
     icon: "/favicon.ico",
   },
-  title: { default: "Core Computing Society", template: "%s | CCS" },
+  title: { default: "CCS - Core Computing Society | Student Computing Club", template: "%s | CCS - Core Computing Society" },
   description:
-    "Core Computing Society unites students in Software Engineering, AI, Cyber Security, Data Science, and beyond — building, learning, and leading together.",
+    "CCS (Core Computing Society) unites students in Software Engineering, AI, Cyber Security, Data Science, and beyond. Join our computing community for clubs, events, projects, and learning.",
   keywords: [
+    "CCS",
+    "Core Computing Society",
     "computing society",
-    "student club",
-    "software engineering",
-    "AI",
-    "cyber security",
+    "student computing club",
+    "software engineering club",
+    "AI club",
+    "cyber security club",
+    "data science",
+    "student organization",
+    "computing students",
   ],
   openGraph: {
-    title: "Core Computing Society",
+    title: "CCS - Core Computing Society",
     description:
-      "The home of computing students. Clubs, events, projects, and a real community.",
+      "The home of computing students. CCS brings together students in Software Engineering, AI, Cybersecurity, and more. Discover clubs, events, projects, and join our community.",
     type: "website",
-    siteName: "Core Computing Society",
+    siteName: "CCS - Core Computing Society",
+    url: "https://ccsuop.com",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Core Computing Society",
+    title: "CCS - Core Computing Society",
+    description: "Join the computing community at CCS",
+  },
+  verification: {
+    google: "gLmK3cT3uIcSNPqxn0m-d0AjQDs63_IWZPZZMtc4nrY",
+  },
+  canonical: "https://ccsuop.com",
+  robots: {
+    index: true,
+    follow: true,
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
   },
 };
 
 export const viewport = { width: "device-width", initialScale: 1 };
+
+// JSON-LD Structured Data for Organization with Developer Information
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "CCS - Core Computing Society",
+  "alternateName": ["Core Computing Society", "CCS"],
+  "url": "https://ccsuop.com",
+  "description": "A student-led computing society uniting students in Software Engineering, AI, Cyber Security, and Data Science.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Information",
+    "url": "https://ccsuop.com/contact"
+  },
+  "creator": [
+    {
+      "@type": "Person",
+      "name": "Muhammad Musa",
+      "jobTitle": "Developer"
+    },
+    {
+      "@type": "Person",
+      "name": "Usman Sethi",
+      "jobTitle": "Developer"
+    }
+  ],\n  "sameAs": [\n    "https://www.facebook.com/ccsuop",\n    "https://www.instagram.com/ccsuop",\n    "https://twitter.com/ccsuop",\n    "https://linkedin.com/company/ccsuop"\n  ]\n};
 
 export default function RootLayout({ children }) {
   return (
@@ -56,6 +100,14 @@ export default function RootLayout({ children }) {
 }catch(e){}})();`,
           }}
         />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        <link rel="canonical" href="https://ccsuop.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
