@@ -76,7 +76,14 @@ const organizationSchema = {
       "name": "Usman Sethi",
       "jobTitle": "Developer"
     }
-  ],\n  "sameAs": [\n    "https://www.facebook.com/ccsuop",\n    "https://www.instagram.com/ccsuop",\n    "https://twitter.com/ccsuop",\n    "https://linkedin.com/company/ccsuop"\n  ]\n};
+  ],
+  "sameAs": [
+    "https://www.facebook.com/ccsuop",
+    "https://www.instagram.com/ccsuop",
+    "https://twitter.com/ccsuop",
+    "https://linkedin.com/company/ccsuop"
+  ]
+};
 
 export default function RootLayout({ children }) {
   return (
