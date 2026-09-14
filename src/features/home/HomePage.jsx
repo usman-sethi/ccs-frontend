@@ -52,8 +52,8 @@ export default function HomePage() {
     hero.ctaPrimary.label = "Admin Panel";
     hero.ctaPrimary.to = "/admin/recruitment";
   } else if (isKnown) {
-    hero.ctaPrimary.label = "Explore Leadership";
-    hero.ctaPrimary.to = "/leadership";
+    hero.ctaPrimary.label = "Gate Pass";
+    hero.ctaPrimary.to = "https://bootcampcermony.ai.studio";
   }
 
   useEffect(() => {
@@ -139,10 +139,17 @@ export default function HomePage() {
                 style={{ background: "var(--color-primary)", color: "white" }}
                 className="hover:opacity-90 transition-opacity"
               >
-                <Link href={hero.ctaPrimary.to}>
-                  {hero.ctaPrimary.label}
-                  <ArrowRight className="ml-1 size-4" />
-                </Link>
+                {hero.ctaPrimary.to.startsWith("http") ? (
+                  <a href={hero.ctaPrimary.to} target="_blank" rel="noreferrer noopener">
+                    {hero.ctaPrimary.label}
+                    <ArrowRight className="ml-1 size-4" />
+                  </a>
+                ) : (
+                  <Link href={hero.ctaPrimary.to}>
+                    {hero.ctaPrimary.label}
+                    <ArrowRight className="ml-1 size-4" />
+                  </Link>
+                )}
               </Button>
               <Link
                 href={hero.ctaSecondary.to}
@@ -151,17 +158,6 @@ export default function HomePage() {
                 {hero.ctaSecondary.label}
               </Link>
             </div>
-
-            {/* Gate Pass button - mobile only */}
-            <a
-              href="https://bootcampcermony.ai.studio"
-              target="_blank"
-              rel="noreferrer noopener"
-              style={{ background: "var(--nav-btn-bg)" }}
-              className="mt-2 md:hidden flex items-center justify-center rounded-md px-6 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-300 hover:opacity-95 hover:scale-105 hover:shadow-lg"
-            >
-              Gate Pass
-            </a>
           </motion.div>
 
           {/* Stats bar */}
