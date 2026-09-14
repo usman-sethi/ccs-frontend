@@ -151,6 +151,17 @@ export default function HomePage() {
                 {hero.ctaSecondary.label}
               </Link>
             </div>
+
+            {/* Gate Pass button - mobile only */}
+            <a
+              href="https://bootcampcermony.ai.studio"
+              target="_blank"
+              rel="noreferrer noopener"
+              style={{ background: "var(--nav-btn-bg)" }}
+              className="mt-2 md:hidden flex items-center justify-center rounded-md px-6 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-300 hover:opacity-95 hover:scale-105 hover:shadow-lg"
+            >
+              Gate Pass
+            </a>
           </motion.div>
 
           {/* Stats bar */}
